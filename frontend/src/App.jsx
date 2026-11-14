@@ -147,7 +147,7 @@ export default function App() {
       case 'payer':
         return (
           <div style={{ flex: 1, overflowY: 'auto', padding: '10px' }}>
-            <PayerApp apiBaseUrl="" />
+            <PayerApp apiBaseUrl={import.meta.env.VITE_API_BASE_URL || ''} />
           </div>
         );
       case 'scanner':

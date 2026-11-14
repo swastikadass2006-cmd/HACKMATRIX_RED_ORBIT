@@ -1,0 +1,16 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://hackmatrix-red-orbit.onrender.com/api/:path*"
+    },
+    {
+      "source": "/stream",
+      "destination": "https://hackmatrix-red-orbit.onrender.com/api/stream"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}

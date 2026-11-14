@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 export default function StepUpModal({ 
   txnId, 
-  apiBaseUrl = 'http://localhost:3000', 
+  apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '', 
   onSuccess, 
   onClose 
 }) {

@@ -2,9 +2,7 @@ import React, { useState } from 'react';
 import { ArrowLeft, Server, Activity, ShieldCheck, Check } from 'lucide-react';
 import { checkHealth } from '../../api/client';
 
-export function SettingsView({ onBackToDashboard }) {
-  const [testResult, setTestResult] = useState(null);
-  const [testing, setTesting] = useState(false);
+  const currentApiBase = import.meta.env.VITE_API_BASE_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:8000');
 
   const handleTestBackend = async () => {
     setTesting(true);
@@ -53,15 +51,15 @@ export function SettingsView({ onBackToDashboard }) {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginTop: '10px' }}>
             <div style={{ padding: '12px', borderRadius: '12px', backgroundColor: 'var(--bg-secondary)' }}>
               <div style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 600 }}>API BASE URL</div>
-              <div style={{ fontSize: '13px', fontFamily: 'monospace', fontWeight: 700, color: 'var(--text-primary)' }}>
-                http://localhost:8000
+              <div style={{ fontSize: '13px', fontFamily: 'monospace', fontWeight: 700, color: 'var(--text-primary)', wordBreak: 'break-all' }}>
+                {currentApiBase}
               </div>
             </div>
 
             <div style={{ padding: '12px', borderRadius: '12px', backgroundColor: 'var(--bg-secondary)' }}>
               <div style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 600 }}>SSE LIVE FEED URL</div>
-              <div style={{ fontSize: '13px', fontFamily: 'monospace', fontWeight: 700, color: 'var(--accent-primary)' }}>
-                http://localhost:8000/api/stream
+              <div style={{ fontSize: '13px', fontFamily: 'monospace', fontWeight: 700, color: 'var(--accent-primary)', wordBreak: 'break-all' }}>
+                {currentApiBase}/api/stream
               </div>
             </div>
 
