@@ -374,7 +374,13 @@ export function ThreatAnalyzer({ onBackToDashboard, onConsultCopilot, initialUrl
           </div>
 
           {/* Mode Switcher Tabs */}
-          <div style={{ display: 'flex', backgroundColor: '#E2E8F0', padding: '3px', borderRadius: '10px' }}>
+          <div style={{ 
+            display: 'flex', 
+            backgroundColor: 'var(--bg-secondary)', 
+            padding: '4px', 
+            borderRadius: '12px',
+            border: '1.5px solid var(--border-light)' 
+          }}>
             <button
               onClick={() => setActiveScannerMode('url')}
               style={{
@@ -383,13 +389,13 @@ export function ThreatAnalyzer({ onBackToDashboard, onConsultCopilot, initialUrl
                 gap: '6px',
                 padding: '6px 14px',
                 borderRadius: '8px',
-                border: 'none',
-                backgroundColor: activeScannerMode === 'url' ? '#FFFFFF' : 'transparent',
+                border: activeScannerMode === 'url' ? '1px solid var(--border-light)' : '1px solid transparent',
+                backgroundColor: activeScannerMode === 'url' ? 'var(--bg-surface)' : 'transparent',
                 color: activeScannerMode === 'url' ? 'var(--accent-primary)' : 'var(--text-secondary)',
                 fontWeight: activeScannerMode === 'url' ? 700 : 500,
                 fontSize: '12px',
                 cursor: 'pointer',
-                boxShadow: activeScannerMode === 'url' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                boxShadow: activeScannerMode === 'url' ? 'var(--shadow-subtle)' : 'none',
                 transition: 'all 0.15s ease'
               }}
             >
@@ -405,13 +411,13 @@ export function ThreatAnalyzer({ onBackToDashboard, onConsultCopilot, initialUrl
                 gap: '6px',
                 padding: '6px 14px',
                 borderRadius: '8px',
-                border: 'none',
-                backgroundColor: activeScannerMode === 'message' ? '#FFFFFF' : 'transparent',
+                border: activeScannerMode === 'message' ? '1px solid var(--border-light)' : '1px solid transparent',
+                backgroundColor: activeScannerMode === 'message' ? 'var(--bg-surface)' : 'transparent',
                 color: activeScannerMode === 'message' ? 'var(--accent-primary)' : 'var(--text-secondary)',
                 fontWeight: activeScannerMode === 'message' ? 700 : 500,
                 fontSize: '12px',
                 cursor: 'pointer',
-                boxShadow: activeScannerMode === 'message' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                boxShadow: activeScannerMode === 'message' ? 'var(--shadow-subtle)' : 'none',
                 transition: 'all 0.15s ease'
               }}
             >
@@ -653,23 +659,24 @@ export function ThreatAnalyzer({ onBackToDashboard, onConsultCopilot, initialUrl
                 <div style={{ 
                   padding: '24px 16px', 
                   textAlign: 'center', 
-                  backgroundColor: '#F8FAF9', 
-                  borderRadius: '10px',
-                  border: '1px dashed var(--border-light)',
+                  backgroundColor: 'var(--bg-secondary)', 
+                  borderRadius: '12px',
+                  border: '1.5px dashed var(--border-light)',
                   color: 'var(--text-secondary)',
                   fontSize: '12px'
                 }}>
-                  <Clock size={20} style={{ margin: '0 auto 8px', opacity: 0.5 }} />
-                  <p style={{ margin: 0, fontWeight: 600 }}>No scans recorded yet.</p>
-                  <p style={{ margin: '4px 0 0', fontSize: '11px' }}>Submit a URL above to run live ML inference.</p>
+                  <Clock size={22} style={{ margin: '0 auto 8px', color: 'var(--text-muted)' }} />
+                  <p style={{ margin: 0, fontWeight: 700, fontSize: '13px', color: 'var(--text-primary)' }}>No scans recorded yet.</p>
+                  <p style={{ margin: '4px 0 0', fontSize: '11px', color: 'var(--text-secondary)' }}>Submit a URL above to run live ML inference.</p>
                 </div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '260px', overflowY: 'auto' }}>
                   {recentScans.map((s) => {
                     const isScanMalicious = s.verdict === 'MALICIOUS';
                     const isScanSuspicious = s.verdict === 'SUSPICIOUS';
-                    const badgeBg = isScanMalicious ? '#FEE2E2' : isScanSuspicious ? '#FEF3C7' : '#DCFCE7';
-                    const badgeColor = isScanMalicious ? '#DC2626' : isScanSuspicious ? '#B45309' : '#15803D';
+                    const badgeBg = isScanMalicious ? 'var(--color-danger-subtle)' : isScanSuspicious ? 'var(--color-warning-subtle)' : 'var(--color-success-subtle)';
+                    const badgeColor = isScanMalicious ? 'var(--color-danger-text)' : isScanSuspicious ? 'var(--color-warning-text)' : 'var(--color-success)';
+                    const badgeBorder = isScanMalicious ? 'var(--color-danger-border)' : isScanSuspicious ? 'var(--color-warning-border)' : 'var(--accent-mint-border)';
 
                     return (
                       <button
@@ -679,16 +686,26 @@ export function ThreatAnalyzer({ onBackToDashboard, onConsultCopilot, initialUrl
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'space-between',
-                          padding: '8px 10px',
+                          padding: '8px 12px',
                           borderRadius: '8px',
                           border: '1px solid var(--border-light)',
-                          backgroundColor: '#FFFFFF',
+                          backgroundColor: 'var(--bg-secondary)',
+                          color: 'var(--text-primary)',
                           cursor: 'pointer',
-                          textAlign: 'left'
+                          textAlign: 'left',
+                          transition: 'all 0.15s ease'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.borderColor = 'var(--accent-primary)';
+                          e.currentTarget.style.backgroundColor = 'var(--bg-surface)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.borderColor = 'var(--border-light)';
+                          e.currentTarget.style.backgroundColor = 'var(--bg-secondary)';
                         }}
                       >
                         <div style={{ overflow: 'hidden', paddingRight: '8px' }}>
-                          <div style={{ fontSize: '11px', fontFamily: 'monospace', color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          <div style={{ fontSize: '11.5px', fontFamily: 'monospace', color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                             {s.target}
                           </div>
                           <div style={{ fontSize: '10px', color: 'var(--text-secondary)' }}>
@@ -696,12 +713,13 @@ export function ThreatAnalyzer({ onBackToDashboard, onConsultCopilot, initialUrl
                           </div>
                         </div>
                         <span style={{
-                          fontSize: '9px',
+                          fontSize: '9.5px',
                           fontWeight: 800,
-                          padding: '2px 6px',
+                          padding: '2px 7px',
                           borderRadius: '4px',
                           backgroundColor: badgeBg,
                           color: badgeColor,
+                          border: `1px solid ${badgeBorder}`,
                           flexShrink: 0
                         }}>
                           {s.verdict}
@@ -745,11 +763,12 @@ export function ThreatAnalyzer({ onBackToDashboard, onConsultCopilot, initialUrl
                           width: '44px', 
                           height: '44px', 
                           borderRadius: '12px', 
-                          backgroundColor: '#FEE2E2', 
+                          backgroundColor: 'var(--color-danger-subtle)', 
                           display: 'flex', 
                           alignItems: 'center', 
                           justifyContent: 'center',
-                          color: '#DC2626'
+                          color: 'var(--color-danger-text)',
+                          border: '1px solid var(--color-danger-border)'
                         }}>
                           <ShieldAlert size={26} />
                         </div>
@@ -758,11 +777,12 @@ export function ThreatAnalyzer({ onBackToDashboard, onConsultCopilot, initialUrl
                           width: '44px', 
                           height: '44px', 
                           borderRadius: '12px', 
-                          backgroundColor: '#DCFCE7', 
+                          backgroundColor: 'var(--color-success-subtle)', 
                           display: 'flex', 
                           alignItems: 'center', 
                           justifyContent: 'center',
-                          color: '#16A34A'
+                          color: 'var(--color-success)',
+                          border: '1px solid var(--accent-mint-border)'
                         }}>
                           <ShieldCheck size={26} />
                         </div>
@@ -772,7 +792,7 @@ export function ThreatAnalyzer({ onBackToDashboard, onConsultCopilot, initialUrl
                           <span style={{ 
                             fontSize: '16px', 
                             fontWeight: 800, 
-                            color: isUrlMalicious ? '#DC2626' : '#16A34A'
+                            color: isUrlMalicious ? 'var(--color-danger-text)' : 'var(--color-success)'
                           }}>
                             {urlResult.verdict}
                           </span>
@@ -781,8 +801,9 @@ export function ThreatAnalyzer({ onBackToDashboard, onConsultCopilot, initialUrl
                             fontWeight: 700, 
                             padding: '2px 8px', 
                             borderRadius: '12px',
-                            backgroundColor: isUrlMalicious ? '#FEE2E2' : '#DCFCE7',
-                            color: isUrlMalicious ? '#DC2626' : '#16A34A'
+                            backgroundColor: isUrlMalicious ? 'var(--color-danger-subtle)' : 'var(--color-success-subtle)',
+                            color: isUrlMalicious ? 'var(--color-danger-text)' : 'var(--color-success)',
+                            border: `1px solid ${isUrlMalicious ? 'var(--color-danger-border)' : 'var(--accent-mint-border)'}`
                           }}>
                             Confidence: {urlConfidence.toFixed(1)}%
                           </span>
@@ -794,7 +815,7 @@ export function ThreatAnalyzer({ onBackToDashboard, onConsultCopilot, initialUrl
                     </div>
 
                     <div style={{ textAlign: 'right' }}>
-                      <div style={{ fontSize: '28px', fontWeight: 900, color: isUrlMalicious ? '#DC2626' : '#16A34A', lineHeight: 1 }}>
+                      <div style={{ fontSize: '28px', fontWeight: 900, color: isUrlMalicious ? 'var(--color-danger-text)' : 'var(--color-success)', lineHeight: 1 }}>
                         {urlScore}
                         <span style={{ fontSize: '14px', color: 'var(--text-secondary)', fontWeight: 500 }}>/100</span>
                       </div>
@@ -809,15 +830,15 @@ export function ThreatAnalyzer({ onBackToDashboard, onConsultCopilot, initialUrl
                     <div style={{ 
                       padding: '12px 14px', 
                       borderRadius: '10px', 
-                      backgroundColor: '#FEF3C7', 
-                      border: '1.5px solid #F59E0B',
+                      backgroundColor: 'var(--color-warning-subtle)', 
+                      border: '1.5px solid var(--color-warning-border)',
                       marginBottom: '16px'
                     }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#B45309', fontWeight: 700, fontSize: '13px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--color-warning-text)', fontWeight: 700, fontSize: '13px' }}>
                         <AlertTriangle size={16} />
                         <span>Brand Impersonation Detected!</span>
                       </div>
-                      <p style={{ margin: '4px 0 0', fontSize: '12px', color: '#92400E' }}>
+                      <p style={{ margin: '4px 0 0', fontSize: '12px', color: 'var(--text-primary)' }}>
                         Mimics <strong>{brandAlert.target_brand}</strong> (Official: <code>{brandAlert.official_domain}</code>) with string similarity of <strong>{((brandAlert.similarity || 0) * 100).toFixed(0)}%</strong>.
                       </p>
                     </div>
@@ -879,9 +900,9 @@ export function ThreatAnalyzer({ onBackToDashboard, onConsultCopilot, initialUrl
                             <div 
                               key={idx}
                               style={{ 
-                                padding: '8px 10px', 
+                                padding: '8px 12px', 
                                 borderRadius: '8px', 
-                                backgroundColor: '#F8FAF9',
+                                backgroundColor: 'var(--bg-secondary)',
                                 border: '1px solid var(--border-light)'
                               }}
                             >
@@ -891,19 +912,19 @@ export function ThreatAnalyzer({ onBackToDashboard, onConsultCopilot, initialUrl
                                 </span>
                                 <span style={{ 
                                   fontWeight: 700, 
-                                  color: isRiskPush ? '#DC2626' : '#16A34A',
+                                  color: isRiskPush ? 'var(--color-danger-text)' : 'var(--color-success)',
                                   fontFamily: 'monospace'
                                 }}>
                                   {isRiskPush ? `+${f.shap_value.toFixed(3)}` : `${f.shap_value.toFixed(3)}`}
                                 </span>
                               </div>
 
-                              <div style={{ height: '6px', width: '100%', backgroundColor: '#E2E8F0', borderRadius: '3px', overflow: 'hidden' }}>
+                              <div style={{ height: '6px', width: '100%', backgroundColor: 'var(--border-light)', borderRadius: '3px', overflow: 'hidden' }}>
                                 <div 
                                   style={{ 
                                     height: '100%', 
                                     width: `${barWidth}%`, 
-                                    backgroundColor: isRiskPush ? '#EF4444' : '#10B981',
+                                    backgroundColor: isRiskPush ? 'var(--color-danger)' : 'var(--accent-primary)',
                                     borderRadius: '3px'
                                   }} 
                                 />
@@ -920,7 +941,7 @@ export function ThreatAnalyzer({ onBackToDashboard, onConsultCopilot, initialUrl
                     <div style={{ maxHeight: '280px', overflowY: 'auto', borderRadius: '8px', border: '1px solid var(--border-light)' }}>
                       <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
                         <thead>
-                          <tr style={{ backgroundColor: '#F1F5F3', textAlign: 'left', color: 'var(--text-secondary)' }}>
+                          <tr style={{ backgroundColor: 'var(--bg-secondary)', textAlign: 'left', color: 'var(--text-secondary)' }}>
                             <th style={{ padding: '8px 12px' }}>Feature Name</th>
                             <th style={{ padding: '8px 12px' }}>Value</th>
                           </tr>
@@ -1003,27 +1024,52 @@ export function ThreatAnalyzer({ onBackToDashboard, onConsultCopilot, initialUrl
                       }}
                       className="pill-action-btn"
                       style={{
-                        backgroundColor: '#1E293B',
-                        color: '#F8FAFC',
+                        backgroundColor: 'var(--bg-secondary)',
+                        color: 'var(--text-primary)',
+                        border: '1px solid var(--border-light)',
                         padding: '8px 14px',
                         fontSize: '12px',
                         borderRadius: '8px',
                         cursor: 'pointer',
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '6px'
+                        gap: '6px',
+                        transition: 'all 0.15s ease'
                       }}
                     >
-                      <Bot size={15} style={{ color: '#38BDF8' }} />
+                      <Bot size={15} style={{ color: 'var(--accent-primary)' }} />
                       <span>Consult AI Security Copilot</span>
                     </button>
                   </div>
                 </div>
               ) : (
-                <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--text-secondary)' }}>
-                  <Search size={36} style={{ margin: '0 auto 12px', opacity: 0.4 }} />
-                  <p style={{ margin: 0, fontWeight: 600 }}>Ready for Live ML Analysis</p>
-                  <p style={{ margin: '4px 0 0', fontSize: '12px' }}>
+                <div style={{ 
+                  textAlign: 'center', 
+                  padding: '64px 24px', 
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  alignItems: 'center', 
+                  justifyContent: 'center' 
+                }}>
+                  <div style={{
+                    width: '56px',
+                    height: '56px',
+                    borderRadius: '16px',
+                    backgroundColor: 'var(--bg-secondary)',
+                    border: '1.5px solid var(--border-light)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: 'var(--accent-primary)',
+                    marginBottom: '16px',
+                    boxShadow: 'var(--shadow-subtle)'
+                  }}>
+                    <Search size={26} />
+                  </div>
+                  <p style={{ margin: 0, fontWeight: 700, fontSize: '15px', color: 'var(--text-primary)' }}>
+                    Ready for Live ML Analysis
+                  </p>
+                  <p style={{ margin: '6px 0 0', fontSize: '12.5px', color: 'var(--text-secondary)', maxWidth: '380px', lineHeight: 1.5 }}>
                     Enter any URL or IP above to trigger real-time 26-feature XGBoost & SHAP evaluation.
                   </p>
                 </div>
@@ -1181,11 +1227,12 @@ export function ThreatAnalyzer({ onBackToDashboard, onConsultCopilot, initialUrl
                           width: '44px', 
                           height: '44px', 
                           borderRadius: '12px', 
-                          backgroundColor: '#FEE2E2', 
+                          backgroundColor: 'var(--color-danger-subtle)', 
                           display: 'flex', 
                           alignItems: 'center', 
                           justifyContent: 'center',
-                          color: '#DC2626'
+                          color: 'var(--color-danger-text)',
+                          border: '1px solid var(--color-danger-border)'
                         }}>
                           <ShieldAlert size={26} />
                         </div>
@@ -1194,11 +1241,12 @@ export function ThreatAnalyzer({ onBackToDashboard, onConsultCopilot, initialUrl
                           width: '44px', 
                           height: '44px', 
                           borderRadius: '12px', 
-                          backgroundColor: '#FEF3C7', 
+                          backgroundColor: 'var(--color-warning-subtle)', 
                           display: 'flex', 
                           alignItems: 'center', 
                           justifyContent: 'center',
-                          color: '#D97706'
+                          color: 'var(--color-warning-text)',
+                          border: '1px solid var(--color-warning-border)'
                         }}>
                           <AlertTriangle size={26} />
                         </div>
@@ -1207,11 +1255,12 @@ export function ThreatAnalyzer({ onBackToDashboard, onConsultCopilot, initialUrl
                           width: '44px', 
                           height: '44px', 
                           borderRadius: '12px', 
-                          backgroundColor: '#DCFCE7', 
+                          backgroundColor: 'var(--color-success-subtle)', 
                           display: 'flex', 
                           alignItems: 'center', 
                           justifyContent: 'center',
-                          color: '#16A34A'
+                          color: 'var(--color-success)',
+                          border: '1px solid var(--accent-mint-border)'
                         }}>
                           <ShieldCheck size={26} />
                         </div>
@@ -1222,7 +1271,7 @@ export function ThreatAnalyzer({ onBackToDashboard, onConsultCopilot, initialUrl
                           <span style={{ 
                             fontSize: '16px', 
                             fontWeight: 800, 
-                            color: isMsgMalicious ? '#DC2626' : isMsgSuspicious ? '#D97706' : '#16A34A'
+                            color: isMsgMalicious ? 'var(--color-danger-text)' : isMsgSuspicious ? 'var(--color-warning-text)' : 'var(--color-success)'
                           }}>
                             {msgResult.verdict}
                           </span>
@@ -1231,8 +1280,9 @@ export function ThreatAnalyzer({ onBackToDashboard, onConsultCopilot, initialUrl
                             fontWeight: 700, 
                             padding: '2px 8px', 
                             borderRadius: '12px',
-                            backgroundColor: isMsgMalicious ? '#FEE2E2' : isMsgSuspicious ? '#FEF3C7' : '#DCFCE7',
-                            color: isMsgMalicious ? '#DC2626' : isMsgSuspicious ? '#D97706' : '#16A34A'
+                            backgroundColor: isMsgMalicious ? 'var(--color-danger-subtle)' : isMsgSuspicious ? 'var(--color-warning-subtle)' : 'var(--color-success-subtle)',
+                            color: isMsgMalicious ? 'var(--color-danger-text)' : isMsgSuspicious ? 'var(--color-warning-text)' : 'var(--color-success)',
+                            border: `1px solid ${isMsgMalicious ? 'var(--color-danger-border)' : isMsgSuspicious ? 'var(--color-warning-border)' : 'var(--accent-mint-border)'}`
                           }}>
                             Confidence: {msgResult.confidence.toFixed(1)}%
                           </span>
@@ -1244,7 +1294,7 @@ export function ThreatAnalyzer({ onBackToDashboard, onConsultCopilot, initialUrl
                     </div>
 
                     <div style={{ textAlign: 'right' }}>
-                      <div style={{ fontSize: '28px', fontWeight: 900, color: isMsgMalicious ? '#DC2626' : isMsgSuspicious ? '#D97706' : '#16A34A', lineHeight: 1 }}>
+                      <div style={{ fontSize: '28px', fontWeight: 900, color: isMsgMalicious ? 'var(--color-danger-text)' : isMsgSuspicious ? 'var(--color-warning-text)' : 'var(--color-success)', lineHeight: 1 }}>
                         {msgScore}
                         <span style={{ fontSize: '14px', color: 'var(--text-secondary)', fontWeight: 500 }}>/100</span>
                       </div>
@@ -1260,7 +1310,7 @@ export function ThreatAnalyzer({ onBackToDashboard, onConsultCopilot, initialUrl
                       Detected Threat Classes:
                     </span>
                     {msgResult.detected_threats.length === 0 ? (
-                      <span style={{ fontSize: '12px', color: '#16A34A', fontWeight: 600 }}>
+                      <span style={{ fontSize: '12px', color: 'var(--color-success)', fontWeight: 600 }}>
                         ✓ No social engineering threat patterns detected
                       </span>
                     ) : (
@@ -1273,9 +1323,9 @@ export function ThreatAnalyzer({ onBackToDashboard, onConsultCopilot, initialUrl
                               fontWeight: 700, 
                               padding: '3px 8px', 
                               borderRadius: '6px', 
-                              backgroundColor: '#FEE2E2', 
-                              color: '#DC2626',
-                              border: '1px solid #FECACA'
+                              backgroundColor: 'var(--color-danger-subtle)', 
+                              color: 'var(--color-danger-text)',
+                              border: '1px solid var(--color-danger-border)'
                             }}
                           >
                             ⚠️ {t}
@@ -1291,7 +1341,7 @@ export function ThreatAnalyzer({ onBackToDashboard, onConsultCopilot, initialUrl
                       Embedded Links ({msgResult.extracted_urls.length}):
                     </span>
                     {msgResult.extracted_urls.length === 0 ? (
-                      <div style={{ fontSize: '12px', color: 'var(--text-secondary)', padding: '8px 10px', backgroundColor: '#F8FAF9', borderRadius: '6px' }}>
+                      <div style={{ fontSize: '12px', color: 'var(--text-secondary)', padding: '8px 10px', backgroundColor: 'var(--bg-secondary)', borderRadius: '6px', border: '1px solid var(--border-light)' }}>
                         No URLs detected in message body.
                       </div>
                     ) : (
@@ -1303,7 +1353,8 @@ export function ThreatAnalyzer({ onBackToDashboard, onConsultCopilot, initialUrl
                               padding: '8px 10px', 
                               borderRadius: '8px', 
                               border: '1px solid var(--border-light)',
-                              backgroundColor: '#FFFFFF',
+                              backgroundColor: 'var(--bg-secondary)',
+                              border: '1px solid var(--border-light)',
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'space-between'
@@ -1317,8 +1368,9 @@ export function ThreatAnalyzer({ onBackToDashboard, onConsultCopilot, initialUrl
                               fontWeight: 800, 
                               padding: '2px 6px', 
                               borderRadius: '4px',
-                              backgroundColor: u.verdict === 'MALICIOUS' ? '#FEE2E2' : '#DCFCE7',
-                              color: u.verdict === 'MALICIOUS' ? '#DC2626' : '#16A34A'
+                              backgroundColor: u.verdict === 'MALICIOUS' ? 'var(--color-danger-subtle)' : 'var(--color-success-subtle)',
+                              color: u.verdict === 'MALICIOUS' ? 'var(--color-danger-text)' : 'var(--color-success)',
+                              border: `1px solid ${u.verdict === 'MALICIOUS' ? 'var(--color-danger-border)' : 'var(--accent-mint-border)'}`
                             }}>
                               {u.verdict} ({u.risk_score}/100)
                             </span>
@@ -1332,14 +1384,14 @@ export function ThreatAnalyzer({ onBackToDashboard, onConsultCopilot, initialUrl
                   <div style={{ 
                     padding: '12px 14px', 
                     borderRadius: '10px', 
-                    backgroundColor: isMsgMalicious ? '#FFF1F2' : isMsgSuspicious ? '#FEF3C7' : '#F0FDF4',
-                    border: `1.5px solid ${isMsgMalicious ? '#FDA4AF' : isMsgSuspicious ? '#FDE68A' : '#BBF7D0'}`,
+                    backgroundColor: isMsgMalicious ? 'var(--color-danger-subtle)' : isMsgSuspicious ? 'var(--color-warning-subtle)' : 'var(--color-success-subtle)',
+                    border: `1.5px solid ${isMsgMalicious ? 'var(--color-danger-border)' : isMsgSuspicious ? 'var(--color-warning-border)' : 'var(--accent-mint-border)'}`,
                     marginBottom: '16px'
                   }}>
-                    <div style={{ fontWeight: 700, fontSize: '12px', color: isMsgMalicious ? '#9F1239' : isMsgSuspicious ? '#92400E' : '#166534', marginBottom: '4px' }}>
+                    <div style={{ fontWeight: 700, fontSize: '12px', color: isMsgMalicious ? 'var(--color-danger-text)' : isMsgSuspicious ? 'var(--color-warning-text)' : 'var(--color-success)', marginBottom: '4px' }}>
                       Recommended Safety Guidance:
                     </div>
-                    <p style={{ margin: 0, fontSize: '12px', color: isMsgMalicious ? '#881337' : isMsgSuspicious ? '#78350F' : '#14532D', lineHeight: 1.5 }}>
+                    <p style={{ margin: 0, fontSize: '12.5px', color: 'var(--text-primary)', lineHeight: 1.5 }}>
                       {msgResult.recommended_action}
                     </p>
                   </div>
@@ -1405,18 +1457,20 @@ export function ThreatAnalyzer({ onBackToDashboard, onConsultCopilot, initialUrl
                       }}
                       className="pill-action-btn"
                       style={{
-                        backgroundColor: '#1E293B',
-                        color: '#F8FAFC',
+                        backgroundColor: 'var(--bg-secondary)',
+                        color: 'var(--text-primary)',
+                        border: '1px solid var(--border-light)',
                         padding: '8px 14px',
                         fontSize: '12px',
                         borderRadius: '8px',
                         cursor: 'pointer',
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '6px'
+                        gap: '6px',
+                        transition: 'all 0.15s ease'
                       }}
                     >
-                      <Bot size={15} style={{ color: '#38BDF8' }} />
+                      <Bot size={15} style={{ color: 'var(--accent-primary)' }} />
                       <span>Consult AI Security Copilot</span>
                     </button>
                   </div>

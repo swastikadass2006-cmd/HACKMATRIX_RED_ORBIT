@@ -21,6 +21,12 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-muted);
+  opacity: 0.85;
+}
+
 /* Master App Container */
 .app-container {
   min-height: 100vh;
