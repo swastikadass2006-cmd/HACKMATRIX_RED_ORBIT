@@ -91,60 +91,66 @@ export function RightColumnCards({ metrics, alert, onTriggerAlert, onViewAnalyti
         )}
       </div>
 
-      {/* Card 2: Amount of Credit with Indian Rupee */}
-      <div className="quixotic-card">
-        <div className="card-header-quixotic" style={{ marginBottom: 8 }}>
-          <div className="card-title-block">
-            <span className="card-main-title" style={{ gap: '6px' }}>
-              <CreditCard size={17} style={{ color: 'var(--text-secondary)' }} />
-              Amount of Credit Limit
+      {/* Card 2: Combined Amount of Credit Limit & Mandatory Payments */}
+      <div className="quixotic-card" style={{ gap: '16px' }}>
+        {/* Upper section: Credit Limit */}
+        <div>
+          <div className="card-header-quixotic" style={{ marginBottom: 6 }}>
+            <div className="card-title-block">
+              <span className="card-main-title" style={{ gap: '6px' }}>
+                <CreditCard size={16} style={{ color: 'var(--text-secondary)' }} />
+                Amount of Credit Limit
+              </span>
+              <span className="card-sub-title">Total refund & overdraft pool</span>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '4px' }}>
+            <div style={{ fontSize: '26px', fontWeight: 700, letterSpacing: '-0.02em', color: 'var(--text-primary)' }} className="tabular-nums">
+              ₹ 8,945.89
+            </div>
+            <span className="mint-badge-pill tabular-nums">
+              +12.8%
             </span>
-            <span className="card-sub-title">Total refund & overdraft pool</span>
           </div>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '6px' }}>
-          <div style={{ fontSize: '28px', fontWeight: 700, letterSpacing: '-0.02em', color: 'var(--text-primary)' }} className="tabular-nums">
-            ₹ 8,945.89
-          </div>
-          <span className="mint-badge-pill tabular-nums">
-            +12.8%
-          </span>
-        </div>
-      </div>
+        {/* Subtle inner divider matching design */}
+        <div style={{ height: '1px', background: 'var(--border-light)', margin: '0' }} />
 
-      {/* Card 3: Mandatory Payments & Monitored Avatars */}
-      <div className="quixotic-card">
-        <div className="card-header-quixotic" style={{ marginBottom: 8 }}>
-          <div className="card-title-block">
-            <span className="card-main-title">Mandatory UPI Rails</span>
-            <span className="card-sub-title">Active risk officers online</span>
+        {/* Lower section: Mandatory UPI Rails */}
+        <div>
+          <div className="card-header-quixotic" style={{ marginBottom: 10 }}>
+            <div className="card-title-block">
+              <span className="card-main-title" style={{ fontSize: '14px' }}>Mandatory Payments</span>
+              <span className="card-sub-title">Recent payments & co-signers</span>
+            </div>
+            <button 
+              className="card-corner-arrow-btn" 
+              aria-label="View payments"
+              onClick={onViewAnalytics}
+            >
+              <ArrowUpRight size={15} />
+            </button>
           </div>
-          <button 
-            className="card-corner-arrow-btn" 
-            aria-label="View payments"
-            onClick={onViewAnalytics}
-          >
-            <ArrowUpRight size={16} />
-          </button>
-        </div>
 
-        {/* Overlapping User Avatars Row */}
-        <div className="avatar-overlap-row">
-          <div className="circle-user-avatar" style={{ backgroundColor: '#F3B431' }} title="David Miller (Audit)">
-            DM
-          </div>
-          <div className="circle-user-avatar" style={{ backgroundColor: '#D97736' }} title="Sarah Connor (Risk)">
-            SC
-          </div>
-          <div className="circle-user-avatar" style={{ backgroundColor: '#E06243' }} title="Michael Lee (Ops)">
-            ML
-          </div>
-          <div className="circle-user-avatar" style={{ backgroundColor: '#3B82F6' }} title="Priya Sharma (UPI Lead)">
-            PS
-          </div>
-          <div className="avatar-count-badge">
-            +2
+          {/* Overlapping User Avatars Row */}
+          <div className="avatar-overlap-row">
+            <div className="circle-user-avatar" style={{ backgroundColor: '#F3B431' }} title="David Miller (Audit)">
+              DM
+            </div>
+            <div className="circle-user-avatar" style={{ backgroundColor: '#D97736' }} title="Sarah Connor (Risk)">
+              SC
+            </div>
+            <div className="circle-user-avatar" style={{ backgroundColor: '#E06243' }} title="Michael Lee (Ops)">
+              ML
+            </div>
+            <div className="circle-user-avatar" style={{ backgroundColor: '#3B82F6' }} title="Priya Sharma (UPI Lead)">
+              PS
+            </div>
+            <div className="avatar-count-badge">
+              +2
+            </div>
           </div>
         </div>
 
@@ -153,7 +159,6 @@ export function RightColumnCards({ metrics, alert, onTriggerAlert, onViewAnalyti
           <div 
             onClick={onTriggerAlert}
             style={{
-              marginTop: '14px',
               padding: '8px 12px',
               borderRadius: '12px',
               backgroundColor: 'var(--color-danger-bg)',
