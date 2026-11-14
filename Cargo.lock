@@ -1280,6 +1280,7 @@ dependencies = [
  "chrono",
  "hex",
  "hmac",
+ "http-body-util",
  "rand",
  "reqwest",
  "rusqlite",
@@ -1288,6 +1289,7 @@ dependencies = [
  "sha2",
  "tokio",
  "tokio-stream",
+ "tower",
  "tower-http 0.5.2",
  "uuid",
 ]
