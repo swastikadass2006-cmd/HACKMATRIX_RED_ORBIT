@@ -25,6 +25,14 @@ SCAM_LURE_PATTERNS = re.compile(
     re.IGNORECASE,
 )
 
+TRUSTLENS_RISK_CLASSES = (
+    "Safe-looking",
+    "Suspicious",
+    "High Risk",
+    "Confirmed Malicious",
+    "Inconclusive",
+)
+
 
 def compute_shannon_entropy(text: str) -> float:
     """Computes Shannon entropy (bits per character) to flag random burner/mule VPAs."""
@@ -80,6 +88,27 @@ def analyze_vpa_lexical_signals(vpa: str) -> dict:
         "is_typosquat": is_typosquat,
         "target_brand": target_brand,
     }
+
+
+def classify_trustlens_risk_fusion(
+    score: int,
+    ml_prob: float,
+    is_typosquat: bool = False,
+    screen_share_detected: bool = False,
+) -> str:
+    """
+    TrustLens Discrete Risk Fusion: Synthesizes multi-engine signals into a unified
+    five-class risk framework: Safe-looking, Suspicious, High Risk, Confirmed Malicious, Inconclusive.
+    """
+    if score < 0 or not (0.0 <= ml_prob <= 1.0):
+        return "Inconclusive"
+    if score >= 80 or (is_typosquat and ml_prob >= 0.75) or (screen_share_detected and score >= 75):
+        return "Confirmed Malicious"
+    if score >= 55 or ml_prob >= 0.65 or is_typosquat:
+        return "High Risk"
+    if score >= 25 or ml_prob >= 0.35:
+        return "Suspicious"
+    return "Safe-looking"
 
 
 def generate_web3_threat_hash(

@@ -92,8 +92,15 @@ def evaluate_rules(
 
     # Hybrid ML Score Boost
     ml_prob = predict_fraud_probability(txn, features, graph_flags)
-    if ml_prob >= 0.65:
-        add("ML_ANOMALY_HIGH", f"RandomForest anomaly confidence {int(ml_prob * 100)}%")
+    has_hard_anomaly = (
+        features["is_new_device"]
+        or txn.vpa_pasted_from_clipboard
+        or txn.is_on_active_call
+        or features["velocity_1m"] >= 1
+        or graph_flags.get("is_hop_chain")
+    )
+    if ml_prob >= 0.65 and has_hard_anomaly:
+        add("ML_ANOMALY_HIGH", f"TrustLens XGBoost anomaly confidence {int(ml_prob * 100)}%")
 
     total_score = min(100, sum(r.weight for r in reasons))
     reasons.sort(key=lambda r: r.weight, reverse=True)
