@@ -75,3 +75,17 @@ def test_p99_latency_under_2ms():
     latencies.sort()
     p99 = latencies[int(0.99 * len(latencies))]
     assert p99 < 2.0
+
+def test_hybrid_ml_anomaly_reason_triggered():
+    reset_risk_state()
+    reset_graph_state()
+    seed_user_profile("mluser@okaxis", avg_amount=500.0, known_devices=["dev-1"], home_city="Kolkata")
+    res = score(_make_txn(
+        sender_vpa="mluser@okaxis",
+        receiver_vpa="attacker@ybl",
+        amount=6000.0,
+        device_id="dev-unknown",
+        geo_city="Mumbai",
+        vpa_pasted_from_clipboard=True,
+    ))
+    assert any(r.code == "ML_ANOMALY_HIGH" for r in res.reasons)

@@ -1,18 +1,32 @@
+import re
 from app.schemas import TransactionRequest, ReasonItem
+from app.risk.ml_model import predict_fraud_probability
 
 RULE_WEIGHTS: dict[str, int] = {
     "SCREEN_SHARE": 50,
     "ACTIVE_CALL_NEW_PAYEE": 45,
     "MULE_FAN_IN_RECEIVER": 45,
+    "SPOOFED_PHISHING_VPA": 45,
     "MICRO_SPLIT": 40,
     "MULE_HOP_RECEIVER": 40,
+    "IMPOSSIBLE_TRAVEL": 40,
     "VELOCITY_1M": 35,
     "AMOUNT_SPIKE_5X": 30,
     "NEW_DEVICE": 25,
+    "ML_ANOMALY_HIGH": 20,
     "GEO_MISMATCH": 20,
     "CLIPBOARD_PASTE_NEW_PAYEE": 15,
     "NEW_PAYEE": 10,
 }
+
+_SAFE_TOKEN_RE = re.compile(r"[^a-zA-Z0-9_@.\-]")
+
+def _sanitize(val: str, max_len: int = 24) -> str:
+    cleaned = _SAFE_TOKEN_RE.sub("", str(val or ""))
+    return cleaned[:max_len]
+
+def get_rule_weights() -> dict[str, int]:
+    return dict(RULE_WEIGHTS)
 
 def evaluate_rules(
     txn: TransactionRequest,
@@ -31,6 +45,16 @@ def evaluate_rules(
     if txn.is_on_active_call and features["is_new_payee"]:
         add("ACTIVE_CALL_NEW_PAYEE", "Active phone call + first-time payee")
 
+    if features.get("is_spoofed_vpa"):
+        add("SPOOFED_PHISHING_VPA", "Deceptive/impersonation keywords in receiver VPA")
+
+    if features.get("is_impossible_travel"):
+        safe_city = _sanitize(txn.geo_city)
+        add("IMPOSSIBLE_TRAVEL", f"Impossible geo-velocity jump to {safe_city} (<30m)")
+    elif features["is_geo_mismatch"]:
+        safe_city = _sanitize(txn.geo_city)
+        add("GEO_MISMATCH", f"Geo mismatch ({safe_city})")
+
     if features["velocity_1m"] >= 2:
         add("VELOCITY_1M", f"Velocity spike ({features['velocity_1m'] + 1} txns in 60s)")
 
@@ -41,10 +65,8 @@ def evaluate_rules(
         add("AMOUNT_SPIKE_5X", f"Amount {features['amount_ratio']:.1f}x above user average")
 
     if features["is_new_device"]:
-        add("NEW_DEVICE", f"Unseen device ({txn.device_id})")
-
-    if features["is_geo_mismatch"]:
-        add("GEO_MISMATCH", f"Geo mismatch ({txn.geo_city})")
+        safe_dev = _sanitize(txn.device_id)
+        add("NEW_DEVICE", f"Unseen device ({safe_dev})")
 
     if txn.vpa_pasted_from_clipboard and features["is_new_payee"]:
         add("CLIPBOARD_PASTE_NEW_PAYEE", "New payee VPA pasted from clipboard")
@@ -55,7 +77,13 @@ def evaluate_rules(
         add("MULE_FAN_IN_RECEIVER", f"Receiver fan-in ({graph_flags['fan_in_count']} senders in 5m)")
 
     if graph_flags.get("is_hop_chain"):
-        add("MULE_HOP_RECEIVER", f"Rapid pass-through hop (<60s from {graph_flags['hop_origin']})")
+        safe_origin = _sanitize(graph_flags.get("hop_origin", ""))
+        add("MULE_HOP_RECEIVER", f"Rapid pass-through hop (<60s from {safe_origin})")
+
+    # Hybrid ML Score Boost
+    ml_prob = predict_fraud_probability(txn, features, graph_flags)
+    if ml_prob >= 0.65:
+        add("ML_ANOMALY_HIGH", f"RandomForest anomaly confidence {int(ml_prob * 100)}%")
 
     total_score = min(100, sum(r.weight for r in reasons))
     reasons.sort(key=lambda r: r.weight, reverse=True)
