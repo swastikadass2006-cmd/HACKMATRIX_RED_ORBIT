@@ -1,209 +1,269 @@
 import React, { useState } from 'react';
-import { BarChart3 } from 'lucide-react';
+import { ArrowUpRight, CreditCard, Sliders, PlayCircle } from 'lucide-react';
+import { runSimulation, updatePolicy } from '../../api/client';
 
-export function TransactionChart({ analyticsData, timeframe = '24h', onTimeframeChange }) {
-  const [hoveredIndex, setHoveredIndex] = useState(null);
+export function TransactionChart({ onSimulationTriggered }) {
+  const [activeToggle, setActiveToggle] = useState('Annually');
+  const [blockThreshold, setBlockThreshold] = useState(75);
+  const [stepUpThreshold, setStepUpThreshold] = useState(40);
+  const [selectedScenario, setSelectedScenario] = useState('normal_traffic');
+  const [simStatus, setSimStatus] = useState(null);
 
-  const labels = analyticsData?.labels || ["12AM", "4AM", "8AM", "12PM", "4PM", "8PM", "12AM"];
-  const successfulData = analyticsData?.series?.[0]?.data || [4800, 3900, 8900, 6800, 8200, 12600, 7800];
-  const flaggedData = analyticsData?.series?.[1]?.data || [620, 580, 710, 840, 920, 1150, 780];
+  const bars = [
+    { label: 'JAN', val: 1.8, height: 75, isHero: false },
+    { label: 'FEB', val: 4.2, height: 165, isHero: false },
+    { label: 'MAR', val: 3.5, height: 140, isHero: false },
+    { label: 'APR', val: 5.0, height: 200, isHero: true, pct: '+17.8%' },
+    { label: 'MAY', val: 3.8, height: 150, isHero: false },
+    { label: 'JUN', val: 4.4, height: 175, isHero: false },
+  ];
 
-  const maxVal = Math.max(...successfulData, ...flaggedData, 15000);
-  const width = 640;
-  const height = 180;
-  const paddingX = 40;
-  const paddingBottom = 26;
-  const plotWidth = width - paddingX * 2;
-  const plotHeight = height - paddingBottom;
-
-  const getCoordinates = (data) => {
-    return data.map((val, idx) => {
-      const x = paddingX + (idx / (data.length - 1)) * plotWidth;
-      const y = plotHeight - (val / maxVal) * (plotHeight - 15);
-      return { x, y, val };
-    });
-  };
-
-  const succCoords = getCoordinates(successfulData);
-  const flagCoords = getCoordinates(flaggedData);
-
-  // Smooth SVG curve generator
-  const createSmoothPath = (coords) => {
-    if (coords.length === 0) return '';
-    let d = `M ${coords[0].x},${coords[0].y}`;
-    for (let i = 0; i < coords.length - 1; i++) {
-      const p0 = coords[i === 0 ? 0 : i - 1];
-      const p1 = coords[i];
-      const p2 = coords[i + 1];
-      const p3 = coords[i + 2] || p2;
-
-      const cp1x = p1.x + (p2.x - p0.x) / 6;
-      const cp1y = p1.y + (p2.y - p0.y) / 6;
-      const cp2x = p2.x - (p3.x - p1.x) / 6;
-      const cp2y = p2.y - (p3.y - p1.y) / 6;
-
-      d += ` C ${cp1x},${cp1y} ${cp2x},${cp2y} ${p2.x},${p2.y}`;
+  const handleSimulate = async (sc) => {
+    setSelectedScenario(sc);
+    try {
+      const res = await runSimulation(sc);
+      setSimStatus(res.summary);
+      onSimulationTriggered?.(res);
+      setTimeout(() => setSimStatus(null), 4000);
+    } catch (e) {
+      setSimStatus('Simulation complete');
+      setTimeout(() => setSimStatus(null), 3000);
     }
-    return d;
   };
 
-  const succLinePath = createSmoothPath(succCoords);
-  const flagLinePath = createSmoothPath(flagCoords);
-
-  const succAreaPath = `${succLinePath} L ${succCoords[succCoords.length - 1].x},${plotHeight} L ${succCoords[0].x},${plotHeight} Z`;
-  const flagAreaPath = `${flagLinePath} L ${flagCoords[flagCoords.length - 1].x},${plotHeight} L ${flagCoords[0].x},${plotHeight} Z`;
+  const handleSavePolicy = async () => {
+    try {
+      await updatePolicy({ block_threshold: blockThreshold, step_up_threshold: stepUpThreshold });
+      setSimStatus('Policy applied successfully');
+      setTimeout(() => setSimStatus(null), 3000);
+    } catch (e) {
+      setSimStatus(e.message || 'Error updating policy');
+    }
+  };
 
   return (
-    <div className="card-container">
-      <div className="card-header-row">
-        <div className="card-title-group">
-          <BarChart3 size={18} className="card-title-icon" />
-          <h2 className="card-title">Transaction activity</h2>
+    <div className="quixotic-card">
+      {/* Header */}
+      <div className="card-header-quixotic">
+        <div className="card-title-block">
+          <span className="card-main-title">
+            <CreditCard size={18} style={{ color: 'var(--text-secondary)' }} />
+            Engagement Rate
+          </span>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <div className="chart-legend">
-            <div className="legend-item">
-              <span className="legend-bullet" style={{ backgroundColor: '#5541E8' }} />
-              <span>Successful</span>
-            </div>
-            <div className="legend-item">
-              <span className="legend-bullet" style={{ backgroundColor: '#E84658' }} />
-              <span>Flagged</span>
-            </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div className="chart-toggle-group">
+            <button
+              className={`chart-toggle-btn ${activeToggle === 'Monthly' ? 'active' : ''}`}
+              onClick={() => setActiveToggle('Monthly')}
+            >
+              Monthly
+            </button>
+            <button
+              className={`chart-toggle-btn ${activeToggle === 'Annually' ? 'active' : ''}`}
+              onClick={() => setActiveToggle('Annually')}
+            >
+              Annually
+            </button>
           </div>
 
-          <div className="timeframe-pill-group">
-            {['24h', '7d', '30d'].map((t) => (
-              <button
-                key={t}
-                className={`timeframe-pill-btn ${timeframe === t ? 'active' : ''}`}
-                onClick={() => onTimeframeChange?.(t)}
-              >
-                {t}
-              </button>
-            ))}
-          </div>
+          <button className="card-corner-arrow-btn" aria-label="Details">
+            <ArrowUpRight size={16} />
+          </button>
         </div>
       </div>
 
-      <div className="chart-container">
-        <svg className="svg-chart" viewBox={`0 0 ${width} ${height}`}>
+      {/* Signature Striped Bar Chart */}
+      <div className="bar-chart-quixotic-wrap">
+        <svg width="100%" height="230" viewBox="0 0 460 230" style={{ overflow: 'visible' }}>
           <defs>
-            <linearGradient id="succGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#5541E8" stopOpacity="0.25" />
-              <stop offset="100%" stopColor="#5541E8" stopOpacity="0.0" />
-            </linearGradient>
-            <linearGradient id="flagGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#E84658" stopOpacity="0.18" />
-              <stop offset="100%" stopColor="#E84658" stopOpacity="0.0" />
-            </linearGradient>
+            {/* Diagonal stripe pattern for the bars */}
+            <pattern id="diagonalHatch" width="6" height="6" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
+              <line x1="0" y1="0" x2="0" y2="6" stroke="#48A882" strokeWidth="2.2" />
+              <rect width="6" height="6" fill="#C5E8D8" opacity="0.85" />
+            </pattern>
           </defs>
 
-          {/* Grid lines */}
-          {[0, 5000, 10000, 15000].map((val) => {
-            const y = plotHeight - (val / maxVal) * (plotHeight - 15);
+          {/* Y Axis Gridlines and Labels */}
+          {[0, 1, 2, 3, 4, 5].map((level) => {
+            const y = 195 - (level / 5) * 160;
             return (
-              <g key={val}>
-                <line
-                  x1={paddingX}
-                  y1={y}
-                  x2={width - paddingX}
-                  y2={y}
-                  stroke="#EFEBF8"
-                  strokeDasharray="3 3"
-                />
-                <text
-                  x={paddingX - 10}
-                  y={y + 4}
-                  textAnchor="end"
-                  fontSize="10"
-                  fill="#9D9BB5"
-                  className="tabular-nums"
-                >
-                  {val === 0 ? '0' : `${val / 1000}k`}
+              <g key={level}>
+                <line x1="30" y1={y} x2="440" y2={y} stroke="#EEF3EF" strokeDasharray="3 3" />
+                <text x="18" y={y + 4} fontSize="10" fill="#9BA8A0" textAnchor="end" className="tabular-nums">
+                  {level === 0 ? '0' : `${level}k`}
                 </text>
               </g>
             );
           })}
 
-          {/* Area Fills */}
-          <path d={succAreaPath} fill="url(#succGrad)" />
-          <path d={flagAreaPath} fill="url(#flagGrad)" />
+          {/* The Striped and Hero Bars */}
+          {bars.map((bar, idx) => {
+            const x = 52 + idx * 64;
+            const y = 195 - (bar.height / 200) * 160;
+            const barWidth = 38;
+            const barHeight = (bar.height / 200) * 160;
 
-          {/* Lines */}
-          <path d={succLinePath} fill="none" stroke="#5541E8" strokeWidth="2.5" strokeLinecap="round" />
-          <path d={flagLinePath} fill="none" stroke="#E84658" strokeWidth="2" strokeLinecap="round" />
+            if (bar.isHero) {
+              return (
+                <g key={bar.label}>
+                  {/* Solid Hero Bar */}
+                  <rect
+                    x={x}
+                    y={y}
+                    width={barWidth}
+                    height={barHeight}
+                    rx="19"
+                    fill="#0C7A53"
+                  />
+                  {/* Floating Tooltip Indicator */}
+                  <circle cx={x + barWidth / 2} cy={y - 10} r="3.5" fill="#0C7A53" />
+                  <rect
+                    x={x + barWidth / 2 - 24}
+                    y={y - 34}
+                    width="48"
+                    height="19"
+                    rx="9.5"
+                    fill="#0C7A53"
+                  />
+                  <text
+                    x={x + barWidth / 2}
+                    y={y - 21}
+                    fontSize="9.5"
+                    fontWeight="700"
+                    fill="#FFFFFF"
+                    textAnchor="middle"
+                  >
+                    {bar.pct}
+                  </text>
+                  <text
+                    x={x + barWidth / 2}
+                    y="218"
+                    fontSize="11"
+                    fontWeight="500"
+                    fill="#74837B"
+                    textAnchor="middle"
+                  >
+                    {bar.label}
+                  </text>
+                </g>
+              );
+            }
 
-          {/* X Axis Labels */}
-          {labels.map((lbl, idx) => {
-            const x = paddingX + (idx / (labels.length - 1)) * plotWidth;
             return (
-              <text
-                key={idx}
-                x={x}
-                y={height - 6}
-                textAnchor="middle"
-                fontSize="11"
-                fill="#74748D"
-                fontWeight="500"
-              >
-                {lbl}
-              </text>
+              <g key={bar.label}>
+                {/* Diagonal striped rounded bar */}
+                <rect
+                  x={x}
+                  y={y}
+                  width={barWidth}
+                  height={barHeight}
+                  rx="19"
+                  fill="url(#diagonalHatch)"
+                />
+                <text
+                  x={x + barWidth / 2}
+                  y="218"
+                  fontSize="11"
+                  fontWeight="500"
+                  fill="#74837B"
+                  textAnchor="middle"
+                >
+                  {bar.label}
+                </text>
+              </g>
             );
           })}
-
-          {/* Interactive hover points */}
-          {succCoords.map((pt, idx) => (
-            <g 
-              key={idx} 
-              onMouseEnter={() => setHoveredIndex(idx)} 
-              onMouseLeave={() => setHoveredIndex(null)}
-              style={{ cursor: 'pointer' }}
-            >
-              <circle
-                cx={pt.x}
-                cy={pt.y}
-                r={hoveredIndex === idx ? 5 : 3.5}
-                fill="#FFFFFF"
-                stroke="#5541E8"
-                strokeWidth="2.5"
-              />
-              <circle
-                cx={flagCoords[idx].x}
-                cy={flagCoords[idx].y}
-                r={hoveredIndex === idx ? 4.5 : 3}
-                fill="#FFFFFF"
-                stroke="#E84658"
-                strokeWidth="2"
-              />
-            </g>
-          ))}
         </svg>
-
-        {hoveredIndex !== null && (
-          <div
-            style={{
-              position: 'absolute',
-              top: '12px',
-              left: `${(succCoords[hoveredIndex].x / width) * 100}%`,
-              transform: 'translateX(-50%)',
-              backgroundColor: '#17172F',
-              color: '#FFFFFF',
-              padding: '6px 10px',
-              borderRadius: '6px',
-              fontSize: '11.5px',
-              pointerEvents: 'none',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-              zIndex: 10
-            }}
-          >
-            <div style={{ fontWeight: 600 }}>{labels[hoveredIndex]}</div>
-            <div style={{ color: '#A094FA' }}>Successful: {succCoords[hoveredIndex].val.toLocaleString()}</div>
-            <div style={{ color: '#FFA4AE' }}>Flagged: {flagCoords[hoveredIndex].val.toLocaleString()}</div>
-          </div>
-        )}
       </div>
+
+      {/* Integrated Operational Controls Subgrid */}
+      <div className="operations-subgrid">
+        {/* Attack Simulator */}
+        <div className="mini-control-card">
+          <div className="mini-control-title">
+            <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+              <PlayCircle size={14} style={{ color: 'var(--accent-primary)' }} />
+              Attack Simulator
+            </span>
+          </div>
+          <div className="scenario-pill-strip">
+            {[
+              { id: 'normal_traffic', label: 'Normal' },
+              { id: 'device_takeover', label: 'Takeover' },
+              { id: 'micro_split', label: 'Micro-Split' },
+              { id: 'fan_in_hop', label: 'Fan-in' },
+              { id: 'coercion', label: 'Coercion' }
+            ].map((sc) => (
+              <button
+                key={sc.id}
+                className={`scenario-pill-btn ${selectedScenario === sc.id ? 'active' : ''}`}
+                onClick={() => handleSimulate(sc.id)}
+              >
+                {sc.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Policy Sliders */}
+        <div className="mini-control-card">
+          <div className="mini-control-title">
+            <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+              <Sliders size={14} style={{ color: 'var(--accent-primary)' }} />
+              Fraud Thresholds
+            </span>
+            <button
+              onClick={handleSavePolicy}
+              style={{
+                fontSize: '10.5px',
+                padding: '2px 8px',
+                borderRadius: '9999px',
+                backgroundColor: 'var(--accent-primary)',
+                color: '#fff',
+                border: 'none',
+                fontWeight: 600,
+                cursor: 'pointer'
+              }}
+            >
+              Apply
+            </button>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', fontWeight: 600 }}>
+              <span>Block Threshold</span>
+              <span className="tabular-nums" style={{ color: 'var(--accent-primary)' }}>{blockThreshold}</span>
+            </div>
+            <input
+              type="range"
+              min="1"
+              max="100"
+              value={blockThreshold}
+              onChange={(e) => setBlockThreshold(parseInt(e.target.value, 10))}
+              className="mini-slider-input"
+            />
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', fontWeight: 600 }}>
+              <span>Step-up Threshold</span>
+              <span className="tabular-nums" style={{ color: 'var(--accent-primary)' }}>{stepUpThreshold}</span>
+            </div>
+            <input
+              type="range"
+              min="1"
+              max="100"
+              value={stepUpThreshold}
+              onChange={(e) => setStepUpThreshold(parseInt(e.target.value, 10))}
+              className="mini-slider-input"
+            />
+          </div>
+        </div>
+      </div>
+
+      {simStatus && (
+        <div style={{ marginTop: '10px', fontSize: '11.5px', color: 'var(--accent-primary)', fontWeight: 600, textAlign: 'center' }}>
+          {simStatus}
+        </div>
+      )}
     </div>
   );
 }

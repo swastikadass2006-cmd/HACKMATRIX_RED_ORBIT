@@ -1,44 +1,49 @@
 :root {
-  /* Color Tokens */
-  --bg-primary: #F5F3FC;
+  /* Quixotic Theme Design Tokens */
+  --bg-primary: #F1F3F2;
   --bg-surface: #FFFFFF;
-  --bg-secondary: #F0EFF8;
-  --bg-dark: #17172F;
-  --bg-dark-card: #222044;
-  --bg-dark-pill: #2C2852;
-  
-  --text-primary: #191932;
-  --text-secondary: #74748D;
-  --text-muted: #9594A8;
+  --bg-secondary: #F6F8F7;
+  --bg-card: #FFFFFF;
+
+  /* Primary Emerald Green */
+  --accent-primary: #0C7A53;
+  --accent-hover: #096846;
+  --accent-dark: #085539;
+  --accent-mint-light: #E5F7EC;
+  --accent-mint-border: #C9EBD9;
+  --accent-mint-bar: #A5D9BE;
+  --accent-glow: rgba(12, 122, 83, 0.12);
+
+  /* Typography Colors */
+  --text-primary: #14221A;
+  --text-secondary: #72827A;
+  --text-muted: #9AA8A0;
   --text-inverse: #FFFFFF;
-  --text-inverse-muted: #9D9BB5;
 
-  --accent-primary: #5541E8;
-  --accent-hover: #4533CD;
-  --accent-light: #EEECFC;
-  --accent-glow: rgba(85, 65, 232, 0.15);
+  /* Semantic Alerts */
+  --color-success: #0C7A53;
+  --color-success-bg: #E5F7EC;
+  --color-warning: #D98218;
+  --color-warning-bg: #FEF4E6;
+  --color-danger: #DA3A49;
+  --color-danger-bg: #FDECEE;
 
-  --color-success: #20B77A;
-  --color-success-bg: #EAF8F2;
-  --color-warning: #F2A629;
-  --color-warning-bg: #FEF6EA;
-  --color-danger: #E84658;
-  --color-danger-bg: #FDECEF;
-
-  --border-light: #E6E3F0;
-  --border-subtle: #F0EFF8;
-  --border-dark: rgba(255, 255, 255, 0.08);
+  /* Borders */
+  --border-light: #E7ECE8;
+  --border-subtle: #F0F4F1;
+  --border-card: #E5ECE7;
 
   /* Elevation Shadows */
-  --shadow-subtle: 0 1px 3px rgba(25, 25, 50, 0.04), 0 2px 8px rgba(25, 25, 50, 0.02);
-  --shadow-card: 0 4px 12px rgba(25, 25, 50, 0.03), 0 1px 3px rgba(25, 25, 50, 0.02);
-  --shadow-elevated: 0 12px 32px rgba(25, 25, 50, 0.08), 0 2px 6px rgba(25, 25, 50, 0.04);
-  --shadow-drawer: -8px 0 24px rgba(23, 23, 47, 0.12);
+  --shadow-subtle: 0 2px 8px rgba(20, 34, 26, 0.02);
+  --shadow-card: 0 6px 24px rgba(20, 34, 26, 0.025), 0 1px 4px rgba(20, 34, 26, 0.015);
+  --shadow-floating: 0 12px 36px rgba(20, 34, 26, 0.05), 0 2px 8px rgba(20, 34, 26, 0.02);
+  --shadow-drawer: -12px 0 40px rgba(20, 34, 26, 0.08);
 
-  /* Radii */
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 14px;
+  /* Rounded Radii */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-card: 26px;
   --radius-pill: 9999px;
 
   /* Typography */

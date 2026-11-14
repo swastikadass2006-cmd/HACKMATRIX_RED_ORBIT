@@ -1,63 +1,114 @@
 import React from 'react';
 import { 
-  ShieldCheck, 
-  LayoutDashboard, 
-  ArrowLeftRight, 
-  ShieldAlert, 
-  Network, 
-  PlayCircle, 
+  LayoutGrid, 
+  BarChart2, 
+  Wallet, 
+  CreditCard, 
   Sliders, 
-  FileText, 
-  Settings 
+  Bell, 
+  Percent, 
+  Settings, 
+  LogOut 
 } from 'lucide-react';
 
-const NAV_ITEMS = [
-  { id: 'overview', label: 'Overview', icon: LayoutDashboard },
-  { id: 'transactions', label: 'Transactions', icon: ArrowLeftRight },
-  { id: 'risk-analytics', label: 'Risk Analytics', icon: ShieldAlert },
-  { id: 'fraud-graph', label: 'Fraud Graph', icon: Network },
-  { id: 'simulator', label: 'Simulator', icon: PlayCircle },
-  { id: 'policy-controls', label: 'Policy Controls', icon: Sliders },
-  { id: 'reports', label: 'Reports', icon: FileText },
-  { id: 'settings', label: 'Settings', icon: Settings }
-];
+export function Sidebar({ activeView = 'dashboard', onSelectView }) {
+  const isDashboard = activeView === 'dashboard';
 
-export function Sidebar({ activeNav = 'overview', onSelectNav, isConnected = true }) {
   return (
-    <aside className="sidebar">
-      <div className="sidebar-header">
-        <div className="brand-icon-box">
-          <ShieldCheck size={22} strokeWidth={2.5} />
-        </div>
-        <div className="brand-text-container">
-          <span className="brand-title">ShieldPay</span>
-          <span className="brand-tagline">Secure. Smart. Inclusive.</span>
-        </div>
-      </div>
+    <aside className="slim-dock">
+      {/* Top Active Green Squircle */}
+      <button 
+        className={`dock-active-box ${isDashboard ? '' : 'selected'}`}
+        style={{
+          backgroundColor: isDashboard ? 'var(--accent-primary)' : 'var(--bg-secondary)',
+          color: isDashboard ? '#FFFFFF' : 'var(--text-secondary)'
+        }}
+        onClick={() => onSelectView?.('dashboard')}
+        aria-label="Dashboard Overview"
+        title="Dashboard"
+      >
+        <LayoutGrid size={20} />
+      </button>
 
-      <nav className="sidebar-nav">
-        {NAV_ITEMS.map((item) => {
-          const Icon = item.icon;
-          const isActive = activeNav === item.id;
-          return (
-            <button
-              key={item.id}
-              className={`nav-item ${isActive ? 'active' : ''}`}
-              onClick={() => onSelectNav?.(item.id)}
-            >
-              <Icon size={18} />
-              <span>{item.label}</span>
-            </button>
-          );
-        })}
-      </nav>
+      {/* Middle Icon List */}
+      <button 
+        className={`dock-icon-btn ${activeView === 'analytics' ? 'selected' : ''}`}
+        onClick={() => onSelectView?.('analytics')}
+        aria-label="Reports & Analytics"
+        title="Reports & Analytics"
+      >
+        <BarChart2 size={19} />
+      </button>
 
-      <div className="sidebar-footer">
-        <div className="system-status-chip">
-          <span className={`status-dot ${isConnected ? 'connected' : 'disconnected'}`} />
-          <span>{isConnected ? 'Backend: Operational' : 'Backend: Disconnected'}</span>
-        </div>
-      </div>
+      <button 
+        className={`dock-icon-btn ${activeView === 'contacts' ? 'selected' : ''}`}
+        onClick={() => onSelectView?.('contacts')}
+        aria-label="UPI VPA Directory"
+        title="UPI VPA Directory"
+      >
+        <Wallet size={19} />
+      </button>
+
+      <button 
+        className={`dock-icon-btn ${activeView === 'transactions' ? 'selected' : ''}`}
+        onClick={() => onSelectView?.('transactions')}
+        aria-label="Transaction History"
+        title="Transaction History"
+      >
+        <CreditCard size={19} />
+      </button>
+
+      <button 
+        className={`dock-icon-btn ${activeView === 'policy' ? 'selected' : ''}`}
+        onClick={() => onSelectView?.('policy')}
+        aria-label="Policy Controls"
+        title="Policy Controls"
+      >
+        <Sliders size={19} />
+      </button>
+
+      <button 
+        className={`dock-icon-btn ${activeView === 'alerts' ? 'selected' : ''}`}
+        onClick={() => onSelectView?.('alerts')}
+        aria-label="Security Alerts"
+        title="Security Alerts"
+      >
+        <Bell size={19} />
+      </button>
+
+      <button 
+        className={`dock-icon-btn ${activeView === 'simulator' ? 'selected' : ''}`}
+        onClick={() => onSelectView?.('simulator')}
+        aria-label="Attack Simulator"
+        title="Attack Simulator Studio"
+      >
+        <Percent size={19} />
+      </button>
+
+      <div className="dock-divider" />
+
+      {/* Bottom Actions */}
+      <button 
+        className={`dock-icon-btn ${activeView === 'settings' ? 'selected' : ''}`}
+        onClick={() => onSelectView?.('settings')}
+        aria-label="Settings"
+        title="System Settings"
+      >
+        <Settings size={19} />
+      </button>
+
+      <button 
+        className="dock-icon-btn"
+        onClick={() => {
+          if (window.confirm('Reset local dashboard session?')) {
+            window.location.reload();
+          }
+        }}
+        aria-label="Reset / Log Out"
+        title="Reset Session"
+      >
+        <LogOut size={19} />
+      </button>
     </aside>
   );
 }
