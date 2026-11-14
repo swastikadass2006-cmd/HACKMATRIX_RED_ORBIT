@@ -2,3 +2,4 @@
 
 pub mod masking;
 pub mod schemas;
+pub mod state_machine;
