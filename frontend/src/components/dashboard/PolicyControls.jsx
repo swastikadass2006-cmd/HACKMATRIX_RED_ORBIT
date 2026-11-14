@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Sliders, Check, AlertCircle } from 'lucide-react';
+import { Check, AlertCircle } from 'lucide-react';
 import { updatePolicy } from '../../api/client';
 
 export function PolicyControls({ initialPolicy, onPolicySaved }) {
@@ -28,7 +28,7 @@ export function PolicyControls({ initialPolicy, onPolicySaved }) {
         block_threshold: parseInt(blockThreshold, 10),
         step_up_threshold: parseInt(stepUpThreshold, 10)
       });
-      setStatusMessage({ type: 'success', text: 'Policy thresholds applied successfully!' });
+      setStatusMessage({ type: 'success', text: 'Policy thresholds applied' });
       onPolicySaved?.(updated);
       setTimeout(() => setStatusMessage(null), 3000);
     } catch (err) {
@@ -40,9 +40,8 @@ export function PolicyControls({ initialPolicy, onPolicySaved }) {
 
   return (
     <div className="card-container policy-card">
-      <div className="card-header-row" style={{ marginBottom: 12 }}>
+      <div className="card-header-row" style={{ marginBottom: 10 }}>
         <div className="card-title-group">
-          <Sliders size={18} className="card-title-icon" />
           <h2 className="card-title">Policy controls</h2>
         </div>
       </div>
@@ -80,15 +79,15 @@ export function PolicyControls({ initialPolicy, onPolicySaved }) {
       {statusMessage && (
         <div
           style={{
-            fontSize: '12px',
-            fontWeight: 600,
+            fontSize: '11.5px',
+            fontWeight: 500,
             display: 'flex',
             alignItems: 'center',
             gap: '6px',
-            color: statusMessage.type === 'success' ? '#108053' : '#E84658'
+            color: statusMessage.type === 'success' ? '#16A34A' : '#DC2626'
           }}
         >
-          {statusMessage.type === 'success' ? <Check size={14} /> : <AlertCircle size={14} />}
+          {statusMessage.type === 'success' ? <Check size={13} /> : <AlertCircle size={13} />}
           <span>{statusMessage.text}</span>
         </div>
       )}
@@ -98,7 +97,7 @@ export function PolicyControls({ initialPolicy, onPolicySaved }) {
         onClick={handleApply}
         disabled={isSaving}
       >
-        {isSaving ? 'Applying...' : 'Apply changes'}
+        {isSaving ? 'Applying changes...' : 'Apply policy changes'}
       </button>
     </div>
   );

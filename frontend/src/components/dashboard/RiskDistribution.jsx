@@ -1,5 +1,4 @@
 import React from 'react';
-import { ShieldAlert } from 'lucide-react';
 
 export function RiskDistribution({ distributionData }) {
   const low = distributionData?.low_risk || { percentage: 72.0, count: 72 };
@@ -7,9 +6,9 @@ export function RiskDistribution({ distributionData }) {
   const high = distributionData?.high_risk || { percentage: 9.0, count: 9 };
 
   // Donut SVG circumference calculation
-  const radius = 52;
-  const strokeWidth = 14;
-  const circumference = 2 * Math.PI * radius; // ~326.72
+  const radius = 48;
+  const strokeWidth = 10;
+  const circumference = 2 * Math.PI * radius; // ~301.59
 
   const lowOffset = 0;
   const lowLength = (low.percentage / 100) * circumference;
@@ -24,88 +23,84 @@ export function RiskDistribution({ distributionData }) {
     <div className="card-container">
       <div className="card-header-row">
         <div className="card-title-group">
-          <ShieldAlert size={18} className="card-title-icon" />
           <h2 className="card-title">Risk distribution</h2>
         </div>
       </div>
 
       <div className="donut-layout">
         <div className="donut-svg-wrapper">
-          <svg viewBox="0 0 140 140" style={{ transform: 'rotate(-90deg)', width: '100%', height: '100%' }}>
+          <svg viewBox="0 0 120 120" style={{ transform: 'rotate(-90deg)', width: '100%', height: '100%' }}>
             {/* Background circle */}
             <circle
-              cx="70"
-              cy="70"
+              cx="60"
+              cy="60"
               r={radius}
               fill="transparent"
-              stroke="#F0EFF8"
+              stroke="#F1F5F9"
               strokeWidth={strokeWidth}
             />
-            {/* Low Risk segment (Green) */}
+            {/* Low Risk segment */}
             <circle
-              cx="70"
-              cy="70"
+              cx="60"
+              cy="60"
               r={radius}
               fill="transparent"
-              stroke="#20B77A"
+              stroke="#16A34A"
               strokeWidth={strokeWidth}
               strokeDasharray={`${lowLength} ${circumference}`}
               strokeDashoffset={lowOffset}
-              strokeLinecap="round"
             />
-            {/* Medium Risk segment (Amber) */}
+            {/* Medium Risk segment */}
             <circle
-              cx="70"
-              cy="70"
+              cx="60"
+              cy="60"
               r={radius}
               fill="transparent"
-              stroke="#F2A629"
+              stroke="#D97706"
               strokeWidth={strokeWidth}
               strokeDasharray={`${medLength} ${circumference}`}
               strokeDashoffset={medOffset}
-              strokeLinecap="round"
             />
-            {/* High Risk segment (Red) */}
+            {/* High Risk segment */}
             <circle
-              cx="70"
-              cy="70"
+              cx="60"
+              cy="60"
               r={radius}
               fill="transparent"
-              stroke="#E84658"
+              stroke="#DC2626"
               strokeWidth={strokeWidth}
               strokeDasharray={`${highLength} ${circumference}`}
               strokeDashoffset={highOffset}
-              strokeLinecap="round"
             />
           </svg>
 
           <div className="donut-center-label">
             <div className="donut-center-pct tabular-nums">{high.percentage}%</div>
-            <div className="donut-center-text">High Risk</div>
+            <div className="donut-center-text">High risk</div>
           </div>
         </div>
 
         <div className="risk-breakdown-list">
           <div className="risk-breakdown-row">
             <span className="risk-tag">
-              <span className="legend-bullet" style={{ backgroundColor: '#20B77A' }} />
-              Low Risk
+              <span className="legend-bullet" style={{ backgroundColor: '#16A34A' }} />
+              Low risk
             </span>
             <span className="risk-value tabular-nums">{low.percentage}%</span>
           </div>
 
           <div className="risk-breakdown-row">
             <span className="risk-tag">
-              <span className="legend-bullet" style={{ backgroundColor: '#F2A629' }} />
-              Medium Risk
+              <span className="legend-bullet" style={{ backgroundColor: '#D97706' }} />
+              Medium risk
             </span>
             <span className="risk-value tabular-nums">{med.percentage}%</span>
           </div>
 
           <div className="risk-breakdown-row">
             <span className="risk-tag">
-              <span className="legend-bullet" style={{ backgroundColor: '#E84658' }} />
-              High Risk
+              <span className="legend-bullet" style={{ backgroundColor: '#DC2626' }} />
+              High risk
             </span>
             <span className="risk-value tabular-nums">{high.percentage}%</span>
           </div>
