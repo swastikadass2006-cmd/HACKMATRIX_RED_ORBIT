@@ -81,7 +81,7 @@ export async function checkHealth() {
 }
 
 export async function analyzeThreat(payload) {
-  const res = await fetch(`${API_BASE}/api/threat/analyze`, {
+  const res = await fetch(`${API_BASE}/api/threat/analyze-url`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload)
@@ -93,9 +93,22 @@ export async function analyzeThreat(payload) {
   return res.json();
 }
 
-export async function fetchThreatPresets() {
-  const res = await fetch(`${API_BASE}/api/threat/presets`);
-  if (!res.ok) throw new Error(`HTTP ${res.status}: Failed to fetch threat presets`);
+export async function analyzeThreatMessage(payload) {
+  const res = await fetch(`${API_BASE}/api/threat/analyze-message`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.detail || `HTTP ${res.status}: Message analysis failed`);
+  }
+  return res.json();
+}
+
+export async function fetchRecentScans() {
+  const res = await fetch(`${API_BASE}/api/threat/recent`);
+  if (!res.ok) throw new Error(`HTTP ${res.status}: Failed to fetch recent scans`);
   return res.json();
 }
 
@@ -108,6 +121,28 @@ export async function sendAiChat(payload) {
   if (!res.ok) {
     const errorData = await res.json().catch(() => ({}));
     throw new Error(errorData.detail || `HTTP ${res.status}: AI Chat request failed`);
+  }
+  return res.json();
+}
+
+export async function commitThreatReport(payload) {
+  const res = await fetch(`${API_BASE}/api/threat/commit-report`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.detail || `HTTP ${res.status}: Web3 report commitment failed`);
+  }
+  return res.json();
+}
+
+export async function verifyThreatReport(reportHash) {
+  const res = await fetch(`${API_BASE}/api/threat/commit-report/${encodeURIComponent(reportHash)}`);
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.detail || `HTTP ${res.status}: Failed to verify Web3 commitment`);
   }
   return res.json();
 }

@@ -1,0 +1,4 @@
+Model,Acc%,Prec%,Rec%,F1%,FPR%,ms/URL
+Baseline 1: Logistic Regression,99.32,99.97,98.71,99.34,0.03,0.0003
+Baseline 2: Random Forest (Lexical),99.45,99.95,99.0,99.47,0.06,0.0009
+TrustLens Tier 1: XGBoost (26 Features),99.52,99.96,99.11,99.53,0.04,0.0003
