@@ -2,15 +2,14 @@ import React from 'react';
 
 export function LoadingSkeleton({ rows = 5 }) {
   return (
-    <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+    <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
       {Array.from({ length: rows }).map((_, i) => (
         <div
           key={i}
           style={{
-            height: '32px',
-            borderRadius: '6px',
-            backgroundColor: '#ECE9F7',
-            animation: 'pulse 1.5s ease-in-out infinite'
+            height: '28px',
+            borderRadius: '4px',
+            backgroundColor: '#F1F5F9'
           }}
         />
       ))}
@@ -20,8 +19,8 @@ export function LoadingSkeleton({ rows = 5 }) {
 
 export function EmptyState({ message = 'No transactions found matching your criteria.' }) {
   return (
-    <div style={{ padding: '36px 16px', textAlign: 'center', color: 'var(--text-secondary)' }}>
-      <p style={{ fontSize: '14px', fontWeight: 500 }}>{message}</p>
+    <div style={{ padding: '32px 16px', textAlign: 'center', color: 'var(--text-muted)' }}>
+      <p style={{ fontSize: '13px', fontWeight: 400 }}>{message}</p>
     </div>
   );
 }

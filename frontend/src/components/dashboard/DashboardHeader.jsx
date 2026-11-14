@@ -1,34 +1,24 @@
 import React from 'react';
-import { ShieldCheck } from 'lucide-react';
+import { Calendar, ChevronDown, Plus } from 'lucide-react';
 
-export function DashboardHeader({ timeframe = '24h', onTimeframeChange }) {
-  const TIMEFRAME_OPTIONS = [
-    { id: '24h', label: '24 Hours' },
-    { id: '7d', label: '7 Days' },
-    { id: '30d', label: '30 Days' }
-  ];
-
+export function DashboardHeader({ onAddAction }) {
   return (
-    <div className="dashboard-header-container">
-      <div>
-        <h1 className="header-title">Payment operations</h1>
-        <p className="header-description">
-          Monitor UPI activity, review risk decisions and configure fraud controls.
-        </p>
+    <div className="header-row">
+      <div className="header-greeting-title">
+        Welcome Back, <span className="header-greeting-name">Alex</span>
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-        <div className="timeframe-pill-group">
-          {TIMEFRAME_OPTIONS.map((opt) => (
-            <button
-              key={opt.id}
-              className={`timeframe-pill-btn ${timeframe === opt.id ? 'active' : ''}`}
-              onClick={() => onTimeframeChange?.(opt.id)}
-            >
-              {opt.label}
-            </button>
-          ))}
-        </div>
+      <div className="header-controls">
+        <button className="pill-dropdown-btn">
+          <Calendar size={15} style={{ color: 'var(--text-secondary)' }} />
+          <span>29 Jun, 2025 - 29 August, 2025</span>
+          <ChevronDown size={14} style={{ color: 'var(--text-secondary)' }} />
+        </button>
+
+        <button className="pill-action-btn" onClick={onAddAction}>
+          <Plus size={15} />
+          <span>Add New Wallet</span>
+        </button>
       </div>
     </div>
   );

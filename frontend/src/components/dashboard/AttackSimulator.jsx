@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { PlayCircle, ShieldCheck, AlertTriangle, Loader2 } from 'lucide-react';
+import { Shield, AlertTriangle, Loader2 } from 'lucide-react';
 import { runSimulation } from '../../api/client';
 
 const SCENARIOS = [
@@ -41,9 +41,8 @@ export function AttackSimulator({ onSimulationResult }) {
 
   return (
     <div className="card-container">
-      <div className="card-header-row" style={{ marginBottom: 12 }}>
+      <div className="card-header-row" style={{ marginBottom: 10 }}>
         <div className="card-title-group">
-          <PlayCircle size={18} className="card-title-icon" style={{ color: '#20B77A' }} />
           <h2 className="card-title">Attack simulator</h2>
         </div>
       </div>
@@ -62,27 +61,28 @@ export function AttackSimulator({ onSimulationResult }) {
       </div>
 
       {isRunning && (
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '12px', color: 'var(--text-secondary)', padding: '6px' }}>
-          <Loader2 size={14} className="animate-spin" />
-          <span>Injecting simulated UPI payload to risk engine...</span>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', fontSize: '11.5px', color: 'var(--text-muted)', padding: '4px' }}>
+          <Loader2 size={13} className="animate-spin" />
+          <span>Injecting UPI payload to risk engine...</span>
         </div>
       )}
 
       {resultMessage && (
         <div
           style={{
-            fontSize: '12px',
-            borderRadius: '6px',
-            padding: '8px 10px',
-            backgroundColor: resultMessage.type === 'success' ? 'var(--color-success-bg)' : resultMessage.type === 'blocked' ? 'var(--color-danger-bg)' : '#FFF3F3',
-            color: resultMessage.type === 'success' ? '#108053' : 'var(--color-danger)',
+            fontSize: '11.5px',
+            borderRadius: '4px',
+            padding: '6px 8px',
+            backgroundColor: resultMessage.type === 'success' ? 'var(--color-success-bg)' : 'var(--color-danger-bg)',
+            border: `1px solid ${resultMessage.type === 'success' ? 'var(--color-success-border)' : 'var(--color-danger-border)'}`,
+            color: resultMessage.type === 'success' ? 'var(--color-success)' : 'var(--color-danger)',
             display: 'flex',
             alignItems: 'center',
-            gap: '8px',
+            gap: '6px',
             fontWeight: 500
           }}
         >
-          {resultMessage.type === 'success' ? <ShieldCheck size={16} /> : <AlertTriangle size={16} />}
+          {resultMessage.type === 'success' ? <Shield size={14} /> : <AlertTriangle size={14} />}
           <span>{resultMessage.summary}</span>
         </div>
       )}
