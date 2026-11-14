@@ -27,6 +27,14 @@ pub fn create_router(state: AppState) -> Router {
             "/api/transactions/:txn_id/stepup/verify",
             post(api::stepup::verify_stepup),
         )
+        .route(
+            "/api/transactions/:txn_id/guardian",
+            post(api::guardian::handle_guardian_approval),
+        )
+        .route(
+            "/api/transactions/:txn_id/cooling/release",
+            post(api::cooling::release_cooling_lock),
+        )
         .route("/api/stream", get(api::stream::sse_handler))
         .route(
             "/api/internal/events",
