@@ -2,6 +2,7 @@
 
 pub mod audit;
 pub mod db;
+pub mod events;
 pub mod idempotency;
 pub mod ledger;
 pub mod masking;
