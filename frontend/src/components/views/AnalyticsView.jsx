@@ -1,14 +1,42 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ArrowLeft, BarChart2, ShieldAlert, Zap, TrendingUp } from 'lucide-react';
+import { fetchAnalytics, fetchRiskDistribution } from '../../api/client';
+import { ContextualEmptyState } from '../common/ContextualEmptyState';
 
 export function AnalyticsView({ metrics, onBackToDashboard }) {
   const [timeframe, setTimeframe] = useState('24h');
+  const [analytics, setAnalytics] = useState(null);
+  const [riskDist, setRiskDist] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const riskData = [
+  useEffect(() => {
+    setLoading(true);
+    Promise.all([
+      fetchAnalytics(timeframe).catch(() => null),
+      fetchRiskDistribution().catch(() => null)
+    ]).then(([ana, risk]) => {
+      if (ana) setAnalytics(ana);
+      if (risk) setRiskDist(risk);
+      setLoading(false);
+    });
+  }, [timeframe]);
+
+  const labels = analytics?.labels || ['12AM', '4AM', '8AM', '12PM', '4PM', '8PM', '12AM'];
+  const succData = analytics?.series?.[0]?.data || [4800, 3900, 8900, 6800, 8200, 12600, 7800];
+  const flagData = analytics?.series?.[1]?.data || [620, 580, 710, 840, 920, 1150, 780];
+  const maxVal = Math.max(...succData, ...flagData, 1);
+
+  const riskData = riskDist ? [
+    { label: 'Low Risk', pct: riskDist.low_risk?.percentage || 72.0, count: riskDist.low_risk?.count?.toLocaleString('en-IN') || '17,841', color: '#0C7A53' },
+    { label: 'Medium Risk', pct: riskDist.medium_risk?.percentage || 19.0, count: riskDist.medium_risk?.count?.toLocaleString('en-IN') || '4,708', color: '#D98218' },
+    { label: 'High Risk', pct: riskDist.high_risk?.percentage || 9.0, count: riskDist.high_risk?.count?.toLocaleString('en-IN') || '2,231', color: '#DA3A49' }
+  ] : [
     { label: 'Low Risk', pct: 72.0, count: '17,841', color: '#0C7A53' },
     { label: 'Medium Risk', pct: 19.0, count: '4,708', color: '#D98218' },
     { label: 'High Risk', pct: 9.0, count: '2,231', color: '#DA3A49' }
   ];
+
+  const latencyFormatted = metrics?.avg_scoring_latency?.value_formatted || '128 ms';
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', flex: 1 }}>
@@ -59,49 +87,47 @@ export function AnalyticsView({ metrics, onBackToDashboard }) {
 
           {/* Activity Visual */}
           <div style={{ height: '240px', display: 'flex', alignItems: 'flex-end', gap: '20px', padding: '20px 0 10px', justifyContent: 'space-around' }}>
-            {[
-              { time: '12AM', succ: 48, flag: 6 },
-              { time: '4AM', succ: 39, flag: 5 },
-              { time: '8AM', succ: 89, flag: 8 },
-              { time: '12PM', succ: 68, flag: 9 },
-              { time: '4PM', succ: 82, flag: 10 },
-              { time: '8PM', succ: 126, flag: 14 },
-              { time: '12AM', succ: 78, flag: 8 },
-            ].map((pt, i) => (
-              <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', flex: 1 }}>
-                <div style={{ display: 'flex', gap: '6px', alignItems: 'flex-end', height: '170px' }}>
-                  <div 
-                    style={{ 
-                      width: '18px', 
-                      height: `${(pt.succ / 130) * 160}px`, 
-                      backgroundColor: 'var(--accent-primary)', 
-                      borderRadius: '8px' 
-                    }} 
-                    title={`Successful: ${pt.succ * 100}`}
-                  />
-                  <div 
-                    style={{ 
-                      width: '14px', 
-                      height: `${(pt.flag / 130) * 160}px`, 
-                      backgroundColor: 'var(--color-danger)', 
-                      borderRadius: '8px' 
-                    }} 
-                    title={`Flagged: ${pt.flag * 100}`}
-                  />
+            {labels.map((time, i) => {
+              const succ = succData[i] || 0;
+              const flag = flagData[i] || 0;
+              return (
+                <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', flex: 1 }}>
+                  <div style={{ display: 'flex', gap: '6px', alignItems: 'flex-end', height: '170px' }}>
+                    <div 
+                      style={{ 
+                        width: '18px', 
+                        height: `${Math.max(8, (succ / maxVal) * 160)}px`, 
+                        backgroundColor: 'var(--accent-primary)', 
+                        borderRadius: '8px',
+                        transition: 'height 0.3s ease'
+                      }} 
+                      title={`Successful: ₹ ${succ.toLocaleString('en-IN')}`}
+                    />
+                    <div 
+                      style={{ 
+                        width: '14px', 
+                        height: `${Math.max(4, (flag / maxVal) * 160)}px`, 
+                        backgroundColor: 'var(--color-danger)', 
+                        borderRadius: '8px',
+                        transition: 'height 0.3s ease'
+                      }} 
+                      title={`Flagged: ₹ ${flag.toLocaleString('en-IN')}`}
+                    />
+                  </div>
+                  <span style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 600 }}>{time}</span>
                 </div>
-                <span style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 600 }}>{pt.time}</span>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'center', gap: '24px', marginTop: '14px', fontSize: '12px', fontWeight: 600 }}>
             <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
               <span style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: 'var(--accent-primary)' }} />
-              Successful Volume (₹ 2.45 Cr)
+              Successful Volume
             </span>
             <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
               <span style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: 'var(--color-danger)' }} />
-              Blocked Threat Volume (₹ 4.82 Lakhs)
+              Blocked Threat Volume
             </span>
           </div>
         </div>
@@ -139,7 +165,7 @@ export function AnalyticsView({ metrics, onBackToDashboard }) {
             <div style={{ marginTop: '16px', padding: '14px', borderRadius: '14px', backgroundColor: 'var(--accent-mint-light)', border: '1px solid var(--accent-mint-border)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--accent-primary)', fontWeight: 700, fontSize: '13px' }}>
                 <Zap size={16} />
-                <span>Scoring Latency SLA: 128 ms</span>
+                <span>Scoring Latency SLA: {latencyFormatted}</span>
               </div>
               <p style={{ fontSize: '11.5px', color: 'var(--text-secondary)', marginTop: '4px' }}>
                 Sub-200ms latency standard enforced across 100% of incoming NPCI IMPS/UPI webhook requests.

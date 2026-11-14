@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Search, Filter, RefreshCw, Activity, ArrowLeft } from 'lucide-react';
+import { ContextualEmptyState } from '../common/ContextualEmptyState';
 
 export function TransactionsView({ transactions = [], onSelectTransaction, onBackToDashboard }) {
   const [search, setSearch] = useState('');
@@ -111,76 +112,87 @@ export function TransactionsView({ transactions = [], onSelectTransaction, onBac
               </tr>
             </thead>
             <tbody>
-              {filtered.map((txn) => {
-                const s = getStatusColor(txn.decision);
-                return (
-                  <tr 
-                    key={txn.id}
-                    onClick={() => onSelectTransaction?.(txn)}
-                    style={{ borderBottom: '1px solid var(--border-subtle)', cursor: 'pointer', transition: 'background-color 0.15s' }}
-                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'}
-                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-                  >
-                    <td style={{ padding: '12px', color: 'var(--text-secondary)' }} className="tabular-nums">
-                      {txn.timestamp}
-                    </td>
-                    <td style={{ padding: '12px', fontFamily: 'monospace', fontWeight: 600, color: 'var(--accent-primary)' }}>
-                      {txn.id}
-                    </td>
-                    <td style={{ padding: '12px', fontFamily: 'monospace', color: 'var(--text-primary)' }}>
-                      {txn.payer}
-                    </td>
-                    <td style={{ padding: '12px', fontFamily: 'monospace', color: 'var(--text-primary)' }}>
-                      {txn.payee}
-                    </td>
-                    <td style={{ padding: '12px', fontWeight: 700, color: 'var(--text-primary)' }} className="tabular-nums">
-                      {formatINR(txn.amount)}
-                    </td>
-                    <td style={{ padding: '12px' }}>
-                      <span className="tabular-nums" style={{ fontWeight: 700, color: s.text }}>
-                        {txn.risk_score}
-                      </span>
-                    </td>
-                    <td style={{ padding: '12px' }}>
-                      <span 
-                        style={{
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: '5px',
-                          padding: '3px 8px',
-                          borderRadius: '9999px',
-                          fontSize: '11px',
-                          fontWeight: 700,
-                          backgroundColor: s.bg,
-                          color: s.text
-                        }}
-                      >
-                        ● {txn.decision}
-                      </span>
-                    </td>
-                    <td style={{ padding: '12px', textAlign: 'right' }}>
-                      <button
-                        style={{
-                          padding: '4px 10px',
-                          borderRadius: '9999px',
-                          border: '1px solid var(--border-light)',
-                          backgroundColor: '#FFFFFF',
-                          fontSize: '11px',
-                          fontWeight: 600,
-                          color: 'var(--accent-primary)',
-                          cursor: 'pointer'
-                        }}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onSelectTransaction?.(txn);
-                        }}
-                      >
-                        Inspect
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
+              {filtered.length === 0 ? (
+                <tr>
+                  <td colSpan={8} style={{ padding: '24px 0' }}>
+                    <ContextualEmptyState 
+                      message="No investigations recorded in current operational session."
+                      subtext="Telemetry index will populate as target analyses conclude."
+                    />
+                  </td>
+                </tr>
+              ) : (
+                filtered.map((txn) => {
+                  const s = getStatusColor(txn.decision);
+                  return (
+                    <tr 
+                      key={txn.id}
+                      onClick={() => onSelectTransaction?.(txn)}
+                      style={{ borderBottom: '1px solid var(--border-subtle)', cursor: 'pointer', transition: 'background-color 0.15s' }}
+                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'}
+                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                    >
+                      <td style={{ padding: '12px', color: 'var(--text-secondary)' }} className="tabular-nums">
+                        {txn.timestamp}
+                      </td>
+                      <td style={{ padding: '12px', fontFamily: 'monospace', fontWeight: 600, color: 'var(--accent-primary)' }}>
+                        {txn.id}
+                      </td>
+                      <td style={{ padding: '12px', fontFamily: 'monospace', color: 'var(--text-primary)' }}>
+                        {txn.payer}
+                      </td>
+                      <td style={{ padding: '12px', fontFamily: 'monospace', color: 'var(--text-primary)' }}>
+                        {txn.payee}
+                      </td>
+                      <td style={{ padding: '12px', fontWeight: 700, color: 'var(--text-primary)' }} className="tabular-nums">
+                        {formatINR(txn.amount)}
+                      </td>
+                      <td style={{ padding: '12px' }}>
+                        <span className="tabular-nums" style={{ fontWeight: 700, color: s.text }}>
+                          {txn.risk_score}
+                        </span>
+                      </td>
+                      <td style={{ padding: '12px' }}>
+                        <span 
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '5px',
+                            padding: '3px 8px',
+                            borderRadius: '9999px',
+                            fontSize: '11px',
+                            fontWeight: 700,
+                            backgroundColor: s.bg,
+                            color: s.text
+                          }}
+                        >
+                          ● {txn.decision}
+                        </span>
+                      </td>
+                      <td style={{ padding: '12px', textAlign: 'right' }}>
+                        <button
+                          style={{
+                            padding: '4px 10px',
+                            borderRadius: '9999px',
+                            border: '1px solid var(--border-light)',
+                            backgroundColor: '#FFFFFF',
+                            fontSize: '11px',
+                            fontWeight: 600,
+                            color: 'var(--accent-primary)',
+                            cursor: 'pointer'
+                          }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onSelectTransaction?.(txn);
+                          }}
+                        >
+                          Inspect
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
             </tbody>
           </table>
         </div>

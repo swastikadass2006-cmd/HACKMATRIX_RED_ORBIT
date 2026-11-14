@@ -14,6 +14,7 @@ import { AlertsView } from './components/views/AlertsView';
 import { ContactsView } from './components/views/ContactsView';
 import { SettingsView } from './components/views/SettingsView';
 import { SimulatorView } from './components/views/SimulatorView';
+import { SecurityCoreErrorBanner } from './components/common/SecurityCoreErrorBanner';
 import { 
   fetchMetrics, 
   fetchTransactions, 
@@ -31,19 +32,23 @@ export default function App() {
   const [transactions, setTransactions] = useState([]);
   const [alerts, setAlerts] = useState([]);
   const [selectedTxn, setSelectedTxn] = useState(null);
+  const [apiError, setApiError] = useState(null);
+  const [connectionStatus, setConnectionStatus] = useState('connecting');
 
   const loadData = useCallback(async () => {
     try {
       const [m, txnsRes, alt] = await Promise.all([
-        fetchMetrics().catch(() => null),
-        fetchTransactions({ page: 1, limit: 30 }).catch(() => ({ transactions: [] })),
-        fetchAlerts().catch(() => [])
+        fetchMetrics(),
+        fetchTransactions({ page: 1, limit: 30 }),
+        fetchAlerts()
       ]);
-      if (m) setMetrics(m);
-      if (txnsRes?.transactions) setTransactions(txnsRes.transactions);
-      if (alt) setAlerts(alt);
+      setMetrics(m);
+      setTransactions(txnsRes?.transactions || []);
+      setAlerts(alt || []);
+      setApiError(null);
     } catch (err) {
-      console.error('Error loading dashboard data:', err);
+      console.error('Error connecting to backend:', err);
+      setApiError('Unable to connect to Security Core');
     }
   }, []);
 
@@ -58,6 +63,9 @@ export default function App() {
         setTransactions((prev) => [newTxn, ...prev]);
         fetchMetrics().then(setMetrics).catch(() => {});
         fetchAlerts().then(setAlerts).catch(() => {});
+      },
+      onStatusChange: (status) => {
+        if (status?.status) setConnectionStatus(status.status);
       }
     });
 
@@ -98,6 +106,7 @@ export default function App() {
       case 'contacts':
         return (
           <ContactsView 
+            transactions={transactions}
             onBackToDashboard={() => setActiveView('dashboard')}
           />
         );
@@ -172,7 +181,16 @@ export default function App() {
         activeView={activeView} 
         onSelectView={setActiveView} 
         unreadAlertCount={alerts.length}
+        connectionStatus={connectionStatus}
       />
+
+      {/* Global Security Core Error Banner if live connection fails */}
+      {apiError && (
+        <SecurityCoreErrorBanner 
+          message={apiError} 
+          onRetry={loadData} 
+        />
+      )}
 
       {/* Greeting & Date Header (only on dashboard view) */}
       {activeView === 'dashboard' && (
