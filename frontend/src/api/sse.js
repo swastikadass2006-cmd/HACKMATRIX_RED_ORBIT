@@ -1,5 +1,5 @@
 export function createTransactionStream({ onTransaction, onStatusChange }) {
-  const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
+  const API_BASE = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || '';
   const streamUrl = `${API_BASE}/api/stream`;
   
   let eventSource = null;
@@ -10,10 +10,11 @@ export function createTransactionStream({ onTransaction, onStatusChange }) {
     if (isClosed) return;
 
     try {
+      onStatusChange?.({ status: 'connecting', connected: false });
       eventSource = new EventSource(streamUrl);
       
       eventSource.onopen = () => {
-        onStatusChange?.({ connected: true, lastConnected: new Date() });
+        onStatusChange?.({ status: 'connected', connected: true, lastConnected: new Date() });
       };
 
       eventSource.addEventListener('transaction', (event) => {
@@ -26,11 +27,11 @@ export function createTransactionStream({ onTransaction, onStatusChange }) {
       });
 
       eventSource.addEventListener('connected', () => {
-        onStatusChange?.({ connected: true, lastConnected: new Date() });
+        onStatusChange?.({ status: 'connected', connected: true, lastConnected: new Date() });
       });
 
       eventSource.onerror = () => {
-        onStatusChange?.({ connected: false });
+        onStatusChange?.({ status: 'reconnecting', connected: false });
         if (eventSource) {
           eventSource.close();
           eventSource = null;
@@ -40,7 +41,7 @@ export function createTransactionStream({ onTransaction, onStatusChange }) {
         }
       };
     } catch (err) {
-      onStatusChange?.({ connected: false });
+      onStatusChange?.({ status: 'reconnecting', connected: false });
       if (!isClosed) {
         reconnectTimer = setTimeout(connect, 4000);
       }
@@ -51,6 +52,7 @@ export function createTransactionStream({ onTransaction, onStatusChange }) {
 
   return () => {
     isClosed = true;
+    onStatusChange?.({ status: 'disconnected', connected: false });
     if (reconnectTimer) clearTimeout(reconnectTimer);
     if (eventSource) eventSource.close();
   };
