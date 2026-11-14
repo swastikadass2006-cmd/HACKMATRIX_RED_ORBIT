@@ -52,13 +52,16 @@ app.include_router(threat_router, prefix=settings.api_prefix)
 app.include_router(stream_router, prefix=settings.api_prefix)
 app.include_router(stream_router)
 
+@app.get("/")
+@app.head("/")
 @app.get("/api/health")
 @app.get("/health")
 def health_check():
     return {
         "status": "healthy",
         "service": "shieldpay-backend",
-        "version": settings.version
+        "version": settings.version,
+        "docs_url": "/docs"
     }
 
 @app.post("/score")
