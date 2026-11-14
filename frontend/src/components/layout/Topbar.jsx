@@ -1,49 +1,44 @@
 import React from 'react';
-import { Search, Bell, Activity } from 'lucide-react';
+import { Search, Bell, Shield, ArrowUpRight } from 'lucide-react';
 
-export function Topbar({ 
-  isConnected = true, 
-  lastSyncTime, 
-  onSearch, 
-  searchValue,
-  alertCount = 4 
-}) {
-  const syncLabel = lastSyncTime 
-    ? lastSyncTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
-    : 'Syncing...';
+export function Topbar({ activeTab = 'Dashboard', onSelectTab }) {
+  const NAV_ITEMS = ['Dashboard', 'Reports', 'Documents', 'History', 'Contacts'];
 
   return (
-    <header className="topbar">
-      <div className="topbar-left">
-        <div className="search-input-wrapper">
-          <Search size={16} className="search-icon" />
-          <input
-            type="text"
-            className="search-input"
-            placeholder="Search by Transaction ID or UPI (e.g. txn_73921)..."
-            value={searchValue || ''}
-            onChange={(e) => onSearch?.(e.target.value)}
-          />
+    <header className="topbar-quixotic">
+      {/* Brand */}
+      <div className="topbar-brand">
+        <div className="topbar-logo-ring">
+          <Shield size={18} strokeWidth={2.6} />
         </div>
+        <span className="topbar-brand-name">ShieldPay</span>
       </div>
 
-      <div className="topbar-right">
-        <div className={`status-indicator-pill ${isConnected ? '' : 'disconnected'}`}>
-          <span className={`status-dot ${isConnected ? 'connected' : 'disconnected'}`} />
-          <span>{isConnected ? 'Connected • SSE live feed' : 'Offline • Attempting reconnect'}</span>
-        </div>
+      {/* Center Nav Pills */}
+      <nav className="topbar-nav-pill-group">
+        {NAV_ITEMS.map((item) => (
+          <button
+            key={item}
+            className={`topbar-nav-item ${activeTab === item ? 'active' : ''}`}
+            onClick={() => onSelectTab?.(item)}
+          >
+            {item}
+          </button>
+        ))}
+      </nav>
 
-        <span className="sync-time-label tabular-nums">
-          <Activity size={14} style={{ color: 'var(--text-muted)' }} />
-          <span>Last sync: {syncLabel}</span>
-        </span>
-
-        <button className="icon-btn" aria-label="Notifications">
-          <Bell size={18} />
-          {alertCount > 0 && <span className="notification-badge" />}
+      {/* Right Circular Actions */}
+      <div className="topbar-actions">
+        <button className="circle-action-btn" aria-label="Search">
+          <Search size={16} />
         </button>
 
-        <div className="user-avatar-badge" title="Risk Officer: Alex Brown">
+        <button className="circle-action-btn" aria-label="Notifications">
+          <Bell size={16} />
+          <span className="unread-dot" />
+        </button>
+
+        <div className="user-avatar-circle" title="Alex Brown">
           AB
         </div>
       </div>
