@@ -15,11 +15,14 @@ import { ContactsView } from './components/views/ContactsView';
 import { SettingsView } from './components/views/SettingsView';
 import { SimulatorView } from './components/views/SimulatorView';
 import { SecurityCoreErrorBanner } from './components/common/SecurityCoreErrorBanner';
-import { 
-  fetchMetrics, 
-  fetchTransactions, 
-  fetchAlerts 
-} from './api/client';
+import PayerApp from './components/PayerApp';
+import ThreatAnalyzer from './components/ThreatAnalyzer';
+import AiSecurityAssistant from './components/AiSecurityAssistant';
+import { Bot } from 'lucide-react';
+import {
+  fetchMetrics,
+  fetchTransactions,
+  fetchAlerts } from './api/client';
 import { createTransactionStream } from './api/sse';
 
 export default function App() {
@@ -34,6 +37,19 @@ export default function App() {
   const [selectedTxn, setSelectedTxn] = useState(null);
   const [apiError, setApiError] = useState(null);
   const [connectionStatus, setConnectionStatus] = useState('connecting');
+  const [chatContext, setChatContext] = useState(null);
+  const [isChatDrawerOpen, setIsChatDrawerOpen] = useState(false);
+  const [targetScanUrl, setTargetScanUrl] = useState('');
+
+  const handleScanThreat = (urlToScan) => {
+    setTargetScanUrl(urlToScan || '');
+    setActiveView('scanner');
+  };
+
+  const handleConsultCopilot = (context) => {
+    setChatContext(context);
+    setIsChatDrawerOpen(true);
+  };
 
   const loadData = useCallback(async () => {
     try {
@@ -77,42 +93,42 @@ export default function App() {
     switch (activeView) {
       case 'transactions':
         return (
-          <TransactionsView 
-            transactions={transactions} 
+          <TransactionsView
+            transactions={transactions}
             onSelectTransaction={setSelectedTxn}
             onBackToDashboard={() => setActiveView('dashboard')}
-          />
+            />
         );
       case 'analytics':
         return (
-          <AnalyticsView 
+          <AnalyticsView
             metrics={metrics}
             onBackToDashboard={() => setActiveView('dashboard')}
-          />
+            />
         );
       case 'policy':
         return (
-          <PolicyView 
+          <PolicyView
             onBackToDashboard={() => setActiveView('dashboard')}
-          />
+            />
         );
       case 'alerts':
         return (
-          <AlertsView 
+          <AlertsView
             alerts={alerts}
             onBackToDashboard={() => setActiveView('dashboard')}
-          />
+            />
         );
       case 'contacts':
         return (
-          <ContactsView 
+          <ContactsView
             transactions={transactions}
             onBackToDashboard={() => setActiveView('dashboard')}
-          />
+            />
         );
       case 'simulator':
         return (
-          <SimulatorView 
+          <SimulatorView
             onBackToDashboard={() => setActiveView('dashboard')}
             onSimulationDone={(res) => {
               if (res?.transaction) {
@@ -120,13 +136,38 @@ export default function App() {
                 loadData();
               }
             }}
-          />
+            />
         );
       case 'settings':
         return (
-          <SettingsView 
+          <SettingsView
             onBackToDashboard={() => setActiveView('dashboard')}
-          />
+            />
+        );
+      case 'payer':
+        return (
+          <div style={{ flex: 1, overflowY: 'auto', padding: '10px' }}>
+            <PayerApp apiBaseUrl="" />
+          </div>
+        );
+      case 'scanner':
+        return (
+          <ThreatAnalyzer
+            initialUrl={targetScanUrl}
+            onBackToDashboard={() => setActiveView('dashboard')}
+            onConsultCopilot={handleConsultCopilot}
+            />
+        );
+      case 'copilot':
+        return (
+          <div style={{ flex: 1, padding: '10px', display: 'flex', flexDirection: 'column' }}>
+            <AiSecurityAssistant
+              isOpen={true}
+              isFloating={false}
+              initialContext={chatContext}
+              onNavigateToScanner={() => setActiveView('scanner')}
+              />
+          </div>
         );
       case 'dashboard':
       default:
@@ -134,20 +175,20 @@ export default function App() {
           <main className="dashboard-grid-3col">
             {/* Column 1: Payment Goal Card with Emerald RuPay Card + Payment History */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-              <FraudCard 
-                metrics={metrics} 
+              <FraudCard
+                metrics={metrics}
                 onViewDetails={() => setActiveView('analytics')}
-              />
-              <LiveTransactions 
-                transactions={transactions} 
-                onSelectTransaction={setSelectedTxn} 
+                />
+              <LiveTransactions
+                transactions={transactions}
+                onSelectTransaction={setSelectedTxn}
                 onViewAll={() => setActiveView('transactions')}
-              />
+                />
             </div>
 
             {/* Column 2: Engagement Rate Chart (Striped Mint Bars) + Operational Controls */}
             <div style={{ minWidth: 0 }}>
-              <TransactionChart 
+              <TransactionChart
                 dateRange={dateRange}
                 onDateRangeChange={setDateRange}
                 onSimulationTriggered={(res) => {
@@ -155,19 +196,19 @@ export default function App() {
                     setTransactions((prev) => [res.transaction, ...prev]);
                     loadData();
                   }
-                }} 
+                }}
                 onViewAnalytics={() => setActiveView('analytics')}
-              />
+                />
             </div>
 
             {/* Column 3: Payment Goal Wave Chart + Amount of Credit + Mandatory Payments Avatars */}
             <div style={{ minWidth: 0 }}>
-              <RightColumnCards 
-                metrics={metrics} 
-                alert={alerts[0]} 
+              <RightColumnCards
+                metrics={metrics}
+                alert={alerts[0]}
                 onTriggerAlert={() => setActiveView('alerts')}
                 onViewAnalytics={() => setActiveView('analytics')}
-              />
+                />
             </div>
           </main>
         );
@@ -177,51 +218,103 @@ export default function App() {
   return (
     <div className="app-container">
       {/* Top Navigation Bar with active navigation tracking */}
-      <Topbar 
-        activeView={activeView} 
-        onSelectView={setActiveView} 
+      <Topbar
+        activeView={activeView}
+        onSelectView={setActiveView}
         unreadAlertCount={alerts.length}
         connectionStatus={connectionStatus}
-      />
+        />
 
       {/* Global Security Core Error Banner if live connection fails */}
       {apiError && (
-        <SecurityCoreErrorBanner 
-          message={apiError} 
-          onRetry={loadData} 
+      <SecurityCoreErrorBanner
+        message={apiError}
+        onRetry={loadData}
         />
-      )}
+    )}
 
       {/* Greeting & Date Header (only on dashboard view) */}
       {activeView === 'dashboard' && (
-        <DashboardHeader 
-          userName="Sujon"
-          dateRange={dateRange}
-          onDateRangeChange={(newRange) => {
-            setDateRange(newRange);
-            loadData();
-          }}
-          onAddAction={() => setActiveView('simulator')} 
+      <DashboardHeader
+        userName="Sujon"
+        dateRange={dateRange}
+        onDateRangeChange={(newRange) => {
+          setDateRange(newRange);
+          loadData();
+        }}
+        onAddAction={() => setActiveView('simulator')}
         />
-      )}
+    )}
 
       {/* Main Layout: Slim Floating Dock + Active View */}
       <div className="dashboard-main-layout">
         {/* Left Slim Floating Rail */}
-        <Sidebar 
-          activeView={activeView} 
-          onSelectView={setActiveView} 
-        />
+        <Sidebar
+          activeView={activeView}
+          onSelectView={setActiveView}
+          />
 
         {/* Dynamic Interactive View */}
         {renderCurrentView()}
       </div>
 
       {/* Transaction Inspection Drawer */}
-      <TransactionDrawer 
-        transaction={selectedTxn} 
-        onClose={() => setSelectedTxn(null)} 
-      />
+      <TransactionDrawer
+        transaction={selectedTxn}
+        onClose={() => setSelectedTxn(null)}
+        onScanThreat={handleScanThreat}
+        onConsultCopilot={handleConsultCopilot}
+        />
+
+      {/* Floating AI Security Assistant Widget */}
+      <AiSecurityAssistant
+        isOpen={isChatDrawerOpen}
+        onClose={() => setIsChatDrawerOpen(false)}
+        isFloating={true}
+        initialContext={chatContext}
+        onNavigateToScanner={() => {
+          setActiveView('scanner');
+          setIsChatDrawerOpen(false);
+        }}
+        />
+
+      {/* Floating AI Copilot Launcher Button */}
+      {!isChatDrawerOpen && activeView !== 'copilot' && (
+      <button
+        onClick={() => setIsChatDrawerOpen(true)}
+        style={{
+          position: 'fixed',
+          bottom: '24px',
+          right: '24px',
+          padding: '12px 18px',
+          borderRadius: '30px',
+          backgroundColor: '#0F172A',
+          color: '#38BDF8',
+          border: '1.5px solid rgba(56, 189, 248, 0.4)',
+          boxShadow: '0 8px 24px rgba(15, 23, 42, 0.25)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          fontWeight: 700,
+          fontSize: '13px',
+          cursor: 'pointer',
+          zIndex: 9998,
+          transition: 'transform 0.2s ease, box-shadow 0.2s ease'
+        }}
+        onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+        onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+        >
+        <Bot size={18} style={{ color: '#38BDF8' }} />
+        <span style={{ color: '#F8FAFC' }}>AI Security Copilot</span>
+        <span style={{
+          width: '8px',
+          height: '8px',
+          borderRadius: '50%',
+          backgroundColor: '#10B981',
+          display: 'inline-block'
+        }} />
+      </button>
+    )}
     </div>
   );
 }

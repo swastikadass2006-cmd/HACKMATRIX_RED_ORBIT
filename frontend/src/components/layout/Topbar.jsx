@@ -11,6 +11,9 @@ export function Topbar({
 }) {
   const NAV_ITEMS = [
     { id: 'dashboard', label: 'Dashboard' },
+    { id: 'payer', label: 'UPI Payer App' },
+    { id: 'scanner', label: 'ML Threat Scanner' },
+    { id: 'copilot', label: 'AI Copilot' },
     { id: 'analytics', label: 'Reports' },
     { id: 'policy', label: 'Documents' },
     { id: 'transactions', label: 'History' },

@@ -9,10 +9,10 @@ def resolve_decision(
 ) -> DecisionState:
     if score > 75:
         return "BLOCKED"
-    if (is_on_active_call or screen_share_detected) and is_new_payee:
-        return "COOLING_LOCK"
     if is_guardian_account and (40 <= score <= 75) and is_new_payee:
         return "GUARDIAN_PENDING"
+    if (is_on_active_call or screen_share_detected) and is_new_payee:
+        return "COOLING_LOCK"
     if 40 <= score <= 75:
         return "STEP_UP_PENDING"
     return "APPROVED"

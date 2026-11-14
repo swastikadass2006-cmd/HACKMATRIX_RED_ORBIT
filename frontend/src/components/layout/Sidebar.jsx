@@ -8,7 +8,10 @@ import {
   Bell, 
   Percent, 
   Settings, 
-  LogOut 
+  LogOut,
+  Send,
+  Cpu,
+  Bot
 } from 'lucide-react';
 
 export function Sidebar({ activeView = 'dashboard', onSelectView }) {
@@ -31,6 +34,15 @@ export function Sidebar({ activeView = 'dashboard', onSelectView }) {
       </button>
 
       {/* Middle Icon List */}
+      <button 
+        className={`dock-icon-btn ${activeView === 'payer' ? 'selected' : ''}`}
+        onClick={() => onSelectView?.('payer')}
+        aria-label="UPI Payer App"
+        title="UPI Payer App (Track 1 Rails)"
+      >
+        <Send size={19} />
+      </button>
+
       <button 
         className={`dock-icon-btn ${activeView === 'analytics' ? 'selected' : ''}`}
         onClick={() => onSelectView?.('analytics')}
@@ -83,6 +95,24 @@ export function Sidebar({ activeView = 'dashboard', onSelectView }) {
         title="Attack Simulator Studio"
       >
         <Percent size={19} />
+      </button>
+
+      <button 
+        className={`dock-icon-btn ${activeView === 'scanner' ? 'selected' : ''}`}
+        onClick={() => onSelectView?.('scanner')}
+        aria-label="TrustLens ML Scanner"
+        title="TrustLens ML Threat Analyzer"
+      >
+        <Cpu size={19} />
+      </button>
+
+      <button 
+        className={`dock-icon-btn ${activeView === 'copilot' ? 'selected' : ''}`}
+        onClick={() => onSelectView?.('copilot')}
+        aria-label="AI Security Copilot"
+        title="Gemini AI Security Copilot"
+      >
+        <Bot size={19} />
       </button>
 
       <div className="dock-divider" />

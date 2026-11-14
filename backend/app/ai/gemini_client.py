@@ -15,8 +15,9 @@ from .models import ScamWarning
 from .prompts import SYSTEM_PROMPT, build_user_prompt
 from .fallback import template_warning
 
-# Supported models: gemini-2.5-flash, gemini-2.0-flash, gemini-1.5-flash
-MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+MODEL = os.getenv("GEMINI_MODEL", "gemini-3.5-flash-lite")
+if MODEL in ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"]:
+    MODEL = "gemini-3.5-flash-lite"
 
 def get_genai_client():
     api_key = os.getenv("GEMINI_API_KEY")

@@ -79,3 +79,35 @@ export async function checkHealth() {
   if (!res.ok) throw new Error(`HTTP ${res.status}: Health check failed`);
   return res.json();
 }
+
+export async function analyzeThreat(payload) {
+  const res = await fetch(`${API_BASE}/api/threat/analyze`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.detail || `HTTP ${res.status}: Threat analysis failed`);
+  }
+  return res.json();
+}
+
+export async function fetchThreatPresets() {
+  const res = await fetch(`${API_BASE}/api/threat/presets`);
+  if (!res.ok) throw new Error(`HTTP ${res.status}: Failed to fetch threat presets`);
+  return res.json();
+}
+
+export async function sendAiChat(payload) {
+  const res = await fetch(`${API_BASE}/api/ai/chat`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.detail || `HTTP ${res.status}: AI Chat request failed`);
+  }
+  return res.json();
+}

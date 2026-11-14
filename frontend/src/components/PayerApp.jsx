@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import StepUpModal from './StepUpModal';
 import GuardianApproval from './GuardianApproval';
+import ScamWarning from './ScamWarning';
 
 // -----------------------------------------------------------------------
 // 1. Web Crypto API: HMAC-SHA256 hex digest generator
@@ -44,7 +45,7 @@ function getUuid() {
 // -----------------------------------------------------------------------
 // 2. PayerApp Component
 // -----------------------------------------------------------------------
-export default function PayerApp({ apiBaseUrl = 'http://localhost:3000' }) {
+export default function PayerApp({ apiBaseUrl = '' }) {
   // Form fields
   const [senderVpa, setSenderVpa] = useState('rahul@okaxis');
   const [receiverVpa, setReceiverVpa] = useState('shop@ybl');
@@ -64,31 +65,43 @@ export default function PayerApp({ apiBaseUrl = 'http://localhost:3000' }) {
   const [lastSignature, setLastSignature] = useState('');
   const [showStepUpModal, setShowStepUpModal] = useState(false);
   const [showGuardianModal, setShowGuardianModal] = useState(false);
+  const [coolingSecondsLeft, setCoolingSecondsLeft] = useState(0);
 
-  // SSE Stream: Listen for real-time state changes on http://localhost:3000/api/stream
+  // SSE Stream: Listen for real-time state changes on /api/stream
   useEffect(() => {
     let eventSource;
     try {
-      eventSource = new EventSource(`${apiBaseUrl}/api/stream`);
+      const streamUrl = `${apiBaseUrl}/api/stream`;
+      eventSource = new EventSource(streamUrl);
+
+      const handleUpdate = (data) => {
+        const currentId = currentTxn?.txn_id;
+        if (!currentId || data.txn_id === currentId || data.id === currentId) {
+          setCurrentTxn((prev) => ({ ...prev, ...data }));
+
+          const state = data.status || data.state;
+          if (state === 'STEP_UP_PENDING') {
+            setShowStepUpModal(true);
+          } else if (state === 'GUARDIAN_PENDING') {
+            setShowGuardianModal(true);
+          } else if (state === 'APPROVED' || state === 'SETTLED' || state === 'BLOCKED' || state === 'REJECTED') {
+            setShowStepUpModal(false);
+            setShowGuardianModal(false);
+          }
+        }
+      };
 
       eventSource.addEventListener('txn.updated', (event) => {
         try {
-          const updated = JSON.parse(event.data);
-          const currentId = currentTxn?.txn_id;
+          handleUpdate(JSON.parse(event.data));
+        } catch (err) {
+          console.error('SSE parse error:', err);
+        }
+      });
 
-          if (!currentId || updated.txn_id === currentId) {
-            setCurrentTxn(updated);
-
-            const state = updated.status || updated.state;
-            if (state === 'STEP_UP_PENDING') {
-              setShowStepUpModal(true);
-            } else if (state === 'GUARDIAN_PENDING') {
-              setShowGuardianModal(true);
-            } else if (state === 'APPROVED' || state === 'SETTLED' || state === 'BLOCKED' || state === 'REJECTED') {
-              setShowStepUpModal(false);
-              setShowGuardianModal(false);
-            }
-          }
+      eventSource.addEventListener('transaction', (event) => {
+        try {
+          handleUpdate(JSON.parse(event.data));
         } catch (err) {
           console.error('SSE parse error:', err);
         }
@@ -105,6 +118,25 @@ export default function PayerApp({ apiBaseUrl = 'http://localhost:3000' }) {
       if (eventSource) eventSource.close();
     };
   }, [apiBaseUrl, currentTxn?.txn_id]);
+
+  // Cooling timer countdown calculation
+  useEffect(() => {
+    const txnState = currentTxn?.status || currentTxn?.state;
+    if (txnState !== 'COOLING_LOCK' || !currentTxn?.cooling_until) {
+      setCoolingSecondsLeft(0);
+      return;
+    }
+
+    const updateTimer = () => {
+      const diffMs = new Date(currentTxn.cooling_until).getTime() - Date.now();
+      const secs = Math.max(0, Math.ceil(diffMs / 1000));
+      setCoolingSecondsLeft(secs);
+    };
+
+    updateTimer();
+    const interval = setInterval(updateTimer, 500);
+    return () => clearInterval(interval);
+  }, [currentTxn?.status, currentTxn?.state, currentTxn?.cooling_until]);
 
   // Initiate Transaction
   const handleInitiatePayment = async (e) => {
@@ -138,7 +170,7 @@ export default function PayerApp({ apiBaseUrl = 'http://localhost:3000' }) {
       const signature = await generateHmacSha256('dev-secret-key', rawJson);
       setLastSignature(signature);
 
-      // POST to Axum backend at http://localhost:3000/api/transactions
+      // POST to Axum backend at /api/transactions
       const response = await fetch(`${apiBaseUrl}/api/transactions`, {
         method: 'POST',
         headers: {
@@ -168,17 +200,73 @@ export default function PayerApp({ apiBaseUrl = 'http://localhost:3000' }) {
     }
   };
 
+  // Remorse Cancellation during COOLING_LOCK
+  const handleCancelCooling = async () => {
+    if (!currentTxn?.txn_id) return;
+    try {
+      setLoading(true);
+      const res = await fetch(`${apiBaseUrl}/api/transactions/${currentTxn.txn_id}/cooling/release`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cancel: true }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to cancel cooling transaction');
+      setCurrentTxn(data);
+    } catch (err) {
+      setErrorMsg(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Settlement after Cooling Lock expiration
+  const handleReleaseCooling = async () => {
+    if (!currentTxn?.txn_id) return;
+    try {
+      setLoading(true);
+      const res = await fetch(`${apiBaseUrl}/api/transactions/${currentTxn.txn_id}/cooling/release`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cancel: false }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to release cooling lock');
+      setCurrentTxn(data);
+    } catch (err) {
+      setErrorMsg(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const txnState = currentTxn?.status || currentTxn?.state || 'IDLE';
 
   return (
-    <div style={{ maxWidth: '580px', margin: '24px auto', padding: '24px', backgroundColor: '#ffffff', borderRadius: '16px', boxShadow: '0 4px 20px rgba(0,0,0,0.06)', fontFamily: 'system-ui, sans-serif' }}>
+    <div style={{ maxWidth: '640px', margin: '24px auto', padding: '24px', backgroundColor: '#ffffff', borderRadius: '16px', boxShadow: '0 4px 20px rgba(0,0,0,0.06)', fontFamily: 'system-ui, sans-serif' }}>
+      {/* Header & Hackathon Focus Badges */}
       <div style={{ borderBottom: '1px solid #e2e8f0', paddingBottom: '14px', marginBottom: '18px' }}>
-        <h2 style={{ margin: 0, fontSize: '20px', fontWeight: 700, color: '#0f172a' }}>
-          🛡️ ShieldPay Payer App
-        </h2>
-        <p style={{ margin: '4px 0 0', fontSize: '13px', color: '#64748b' }}>
-          Axum Core Payment Rail & HMAC Security Verification
-        </p>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <h2 style={{ margin: 0, fontSize: '20px', fontWeight: 700, color: '#0f172a' }}>
+            🛡️ ShieldPay Payer App
+          </h2>
+          <span style={{ fontSize: '11px', fontWeight: 700, color: '#0c7a53', backgroundColor: '#ecfdf5', padding: '4px 10px', borderRadius: '9999px', border: '1px solid #a7f3d0' }}>
+            UPI 2.0 IMPS Rail
+          </span>
+        </div>
+
+        {/* Hackathon Track Criteria Badges */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '10px' }}>
+          <span style={{ fontSize: '10.5px', fontWeight: 700, padding: '3px 8px', borderRadius: '6px', backgroundColor: '#eff6ff', color: '#1d4ed8', border: '1px solid #bfdbfe' }}>
+            Track 1: UPI Integration • HMAC-SHA256 • Double-Entry
+          </span>
+          <span style={{ fontSize: '10.5px', fontWeight: 700, padding: '3px 8px', borderRadius: '6px', backgroundColor: '#f5f3ff', color: '#6d28d9', border: '1px solid #ddd6fe' }}>
+            Track 2: Financial Inclusion Guardian Active
+          </span>
+          <span style={{ fontSize: '10.5px', fontWeight: 700, padding: '3px 8px', borderRadius: '6px', backgroundColor: '#f0fdf4', color: '#15803d', border: '1px solid #bbf7d0' }}>
+            Track 3: PFM: Transaction Baseline Secured
+          </span>
+        </div>
       </div>
 
       {errorMsg && (
@@ -192,7 +280,7 @@ export default function PayerApp({ apiBaseUrl = 'http://localhost:3000' }) {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
           <div>
             <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#475569', marginBottom: '4px' }}>
-              Sender VPA
+              Sender VPA (Payer)
             </label>
             <input
               type="text"
@@ -205,7 +293,7 @@ export default function PayerApp({ apiBaseUrl = 'http://localhost:3000' }) {
 
           <div>
             <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#475569', marginBottom: '4px' }}>
-              Receiver VPA
+              Receiver VPA (Payee)
             </label>
             <input
               type="text"
@@ -246,7 +334,7 @@ export default function PayerApp({ apiBaseUrl = 'http://localhost:3000' }) {
 
           <div>
             <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#475569', marginBottom: '4px' }}>
-              City
+              Geo City
             </label>
             <input
               type="text"
@@ -259,9 +347,15 @@ export default function PayerApp({ apiBaseUrl = 'http://localhost:3000' }) {
 
         {/* Threat Context Flags */}
         <div style={{ padding: '12px 14px', borderRadius: '10px', backgroundColor: '#f8fafc', border: '1px dashed #cbd5e1', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          <span style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-            Risk Signals
-          </span>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              Simulated Threat Signals (Judge Controls)
+            </span>
+            <span style={{ fontSize: '10px', color: '#94a3b8' }}>
+              Track 4 & 5 Testing
+            </span>
+          </div>
+
           <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12.5px', color: '#334155', cursor: 'pointer' }}>
             <input
               type="checkbox"
@@ -269,8 +363,9 @@ export default function PayerApp({ apiBaseUrl = 'http://localhost:3000' }) {
               onChange={(e) => setIsOnCall(e.target.checked)}
               style={{ accentColor: '#0c7a53' }}
             />
-            <span>Active Call Detected (Triggers Guardian Approval)</span>
+            <span>Active Phone Call Detected (Coercion Indicator • Guardian Approval / Cooling)</span>
           </label>
+
           <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12.5px', color: '#334155', cursor: 'pointer' }}>
             <input
               type="checkbox"
@@ -278,8 +373,9 @@ export default function PayerApp({ apiBaseUrl = 'http://localhost:3000' }) {
               onChange={(e) => setIsScreenShare(e.target.checked)}
               style={{ accentColor: '#0c7a53' }}
             />
-            <span>Screen Sharing Active (Trojan Indicator)</span>
+            <span>Screen Sharing Active (RAT / Trojan Indicator • Immediate Block)</span>
           </label>
+
           <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12.5px', color: '#334155', cursor: 'pointer' }}>
             <input
               type="checkbox"
@@ -287,7 +383,7 @@ export default function PayerApp({ apiBaseUrl = 'http://localhost:3000' }) {
               onChange={(e) => setIsClipboardPaste(e.target.checked)}
               style={{ accentColor: '#0c7a53' }}
             />
-            <span>VPA Pasted from Clipboard (Cooling Lock)</span>
+            <span>VPA Pasted from Clipboard (Clipboard Hijacking • 20s Cooling Lock)</span>
           </label>
         </div>
 
@@ -304,10 +400,10 @@ export default function PayerApp({ apiBaseUrl = 'http://localhost:3000' }) {
             fontWeight: 700,
             cursor: loading ? 'not-allowed' : 'pointer',
             boxShadow: '0 2px 8px rgba(12, 122, 83, 0.25)',
-            transition: 'background-color 0.15s'
+            transition: 'background-color 0.15s',
           }}
         >
-          {loading ? 'Computing HMAC & Sending...' : `Pay ₹${parseFloat(amount || 0).toLocaleString('en-IN')}`}
+          {loading ? 'Computing HMAC & Dispatching...' : `Pay ₹${parseFloat(amount || 0).toLocaleString('en-IN')}`}
         </button>
       </form>
 
@@ -329,8 +425,8 @@ export default function PayerApp({ apiBaseUrl = 'http://localhost:3000' }) {
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', color: '#475569' }}>
-            <div><strong>Txn ID:</strong> <span style={{ fontFamily: 'monospace' }}>{currentTxn.txn_id}</span></div>
-            <div><strong>Payer:</strong> {currentTxn.sender_vpa} ➔ <strong>Payee:</strong> {currentTxn.receiver_vpa}</div>
+            <div><strong>Txn ID:</strong> <span style={{ fontFamily: 'monospace' }}>{currentTxn.txn_id || currentTxn.id}</span></div>
+            <div><strong>Payer:</strong> {currentTxn.sender_vpa || currentTxn.payer} ➔ <strong>Payee:</strong> {currentTxn.receiver_vpa || currentTxn.payee}</div>
             <div><strong>Amount:</strong> ₹{parseFloat(currentTxn.amount || 0).toLocaleString('en-IN')}</div>
             {currentTxn.risk_score !== undefined && (
               <div><strong>Risk Score:</strong> {Math.round(currentTxn.risk_score * (currentTxn.risk_score <= 1 ? 100 : 1))}/100</div>
@@ -344,10 +440,85 @@ export default function PayerApp({ apiBaseUrl = 'http://localhost:3000' }) {
         </div>
       )}
 
+      {/* COOLING_LOCK Banner & Remorse Protection Controls */}
+      {txnState === 'COOLING_LOCK' && currentTxn && (
+        <div style={{
+          marginTop: '16px',
+          padding: '16px',
+          borderRadius: '12px',
+          backgroundColor: '#eff6ff',
+          border: '1.5px solid #93c5fd',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '10px',
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontSize: '11px', fontWeight: 800, color: '#1d4ed8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              🛡️ Track 3: PFM Cooling Lock Engaged
+            </span>
+            <span style={{
+              fontSize: '12px',
+              fontWeight: 800,
+              color: '#1e40af',
+              backgroundColor: '#dbeafe',
+              padding: '2px 8px',
+              borderRadius: '6px',
+            }}>
+              ⏱️ {coolingSecondsLeft > 0 ? `${coolingSecondsLeft}s remaining` : 'Timer Expired'}
+            </span>
+          </div>
+
+          <p style={{ margin: 0, fontSize: '12.5px', color: '#1e3a8a', lineHeight: '1.4' }}>
+            <strong>Payer Remorse Window Active:</strong> Funds are held safely in atomic ledger escrow. If you did not intend this transfer, cancel now to reject and retain your balance.
+          </p>
+
+          <div style={{ display: 'flex', gap: '10px', marginTop: '4px' }}>
+            <button
+              onClick={handleCancelCooling}
+              disabled={loading}
+              style={{
+                flex: 1,
+                padding: '9px 12px',
+                borderRadius: '8px',
+                backgroundColor: '#dc2626',
+                color: '#ffffff',
+                border: 'none',
+                fontWeight: 700,
+                fontSize: '12.5px',
+                cursor: loading ? 'not-allowed' : 'pointer',
+              }}
+            >
+              🛑 Cancel Payment (Remorse Protection)
+            </button>
+
+            <button
+              onClick={handleReleaseCooling}
+              disabled={loading || coolingSecondsLeft > 0}
+              style={{
+                flex: 1,
+                padding: '9px 12px',
+                borderRadius: '8px',
+                backgroundColor: coolingSecondsLeft > 0 ? '#cbd5e1' : '#16a34a',
+                color: '#ffffff',
+                border: 'none',
+                fontWeight: 700,
+                fontSize: '12.5px',
+                cursor: (loading || coolingSecondsLeft > 0) ? 'not-allowed' : 'pointer',
+              }}
+            >
+              {coolingSecondsLeft > 0 ? `Wait ${coolingSecondsLeft}s to Settle` : '✓ Settle Payment'}
+            </button>
+          </div>
+
+          {/* Localized Gemini Scam Coach embedded during COOLING_LOCK */}
+          <ScamWarning transactionId={currentTxn.txn_id || currentTxn.id} />
+        </div>
+      )}
+
       {/* Step-Up OTP Modal */}
       {showStepUpModal && currentTxn && (
         <StepUpModal
-          txnId={currentTxn.txn_id}
+          txnId={currentTxn.txn_id || currentTxn.id}
           apiBaseUrl={apiBaseUrl}
           onSuccess={(updated) => {
             setCurrentTxn(updated);
@@ -360,10 +531,10 @@ export default function PayerApp({ apiBaseUrl = 'http://localhost:3000' }) {
       {/* Guardian Approval Modal */}
       {showGuardianModal && currentTxn && (
         <GuardianApproval
-          txnId={currentTxn.txn_id}
+          txnId={currentTxn.txn_id || currentTxn.id}
           amount={currentTxn.amount}
-          senderVpa={currentTxn.sender_vpa}
-          receiverVpa={currentTxn.receiver_vpa}
+          senderVpa={currentTxn.sender_vpa || currentTxn.payer}
+          receiverVpa={currentTxn.receiver_vpa || currentTxn.payee}
           apiBaseUrl={apiBaseUrl}
           onComplete={(updated) => {
             setCurrentTxn(updated);

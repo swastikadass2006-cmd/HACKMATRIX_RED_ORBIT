@@ -262,6 +262,21 @@ def _execute_raw_inference(target: str, threshold: float = 0.65) -> dict:
                 "reason": "ALLOWLISTED",
             }
 
+    # Standard clean UPI handles on trusted bank PSPs are benign
+    if "@" in target:
+        parts = target.split("@", 1)
+        h_part, psp_part = parts[0].lower(), parts[1].lower()
+        legit_psps = {"ybl", "okaxis", "okhdfc", "okicici", "oksbi", "paytm", "ibl", "axl", "upi", "apl"}
+        phishing_tokens = ("login", "verify", "secure", "signin", "kyc", "update", "bank", "support", "helpdesk")
+        is_clean_handle = not any(tok in h_part for tok in phishing_tokens) and not any(tld in h_part for tld in SUSP_TLDS) and "-" not in h_part
+        if psp_part in legit_psps and is_clean_handle:
+            return {
+                "flagged": False,
+                "probability": 0.05,
+                "target": normalized,
+                "reason": "LEGIT_UPI_PSP",
+            }
+
     # 2. Extract 26-element URL feature vector
     vec = extract_url_vector(normalized)
 
