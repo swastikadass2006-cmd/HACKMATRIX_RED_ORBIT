@@ -23,6 +23,10 @@ import { createTransactionStream } from './api/sse';
 
 export default function App() {
   const [activeView, setActiveView] = useState('dashboard');
+  const [dateRange, setDateRange] = useState({
+    id: 'quarter',
+    label: '29 Jun, 2025 - 29 August, 2025'
+  });
   const [metrics, setMetrics] = useState(null);
   const [transactions, setTransactions] = useState([]);
   const [alerts, setAlerts] = useState([]);
@@ -133,19 +137,22 @@ export default function App() {
             </div>
 
             {/* Column 2: Engagement Rate Chart (Striped Mint Bars) + Operational Controls */}
-            <div>
+            <div style={{ minWidth: 0 }}>
               <TransactionChart 
+                dateRange={dateRange}
+                onDateRangeChange={setDateRange}
                 onSimulationTriggered={(res) => {
                   if (res?.transaction) {
                     setTransactions((prev) => [res.transaction, ...prev]);
                     loadData();
                   }
                 }} 
+                onViewAnalytics={() => setActiveView('analytics')}
               />
             </div>
 
             {/* Column 3: Payment Goal Wave Chart + Amount of Credit + Mandatory Payments Avatars */}
-            <div>
+            <div style={{ minWidth: 0 }}>
               <RightColumnCards 
                 metrics={metrics} 
                 alert={alerts[0]} 
@@ -170,6 +177,12 @@ export default function App() {
       {/* Greeting & Date Header (only on dashboard view) */}
       {activeView === 'dashboard' && (
         <DashboardHeader 
+          userName="Sujon"
+          dateRange={dateRange}
+          onDateRangeChange={(newRange) => {
+            setDateRange(newRange);
+            loadData();
+          }}
           onAddAction={() => setActiveView('simulator')} 
         />
       )}
