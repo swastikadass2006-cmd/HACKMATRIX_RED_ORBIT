@@ -1,13 +1,21 @@
 import React from 'react';
 import { AlertCircle, ChevronRight } from 'lucide-react';
+import { ContextualEmptyState } from '../common/ContextualEmptyState';
 
 export function RecentAlerts({ alerts = [], onAlertClick }) {
-  const topAlert = alerts[0] || {
-    id: 'alt_1',
-    title: 'Recent alert',
-    description: 'First-time payee detected with active call',
-    timestamp: '10:41'
-  };
+  const topAlert = alerts[0];
+
+  if (!topAlert) {
+    return (
+      <div style={{ padding: '4px 0' }}>
+        <ContextualEmptyState 
+          message="Zero unresolved high-risk security findings detected."
+          subtext="Telemetry index will populate as target analyses conclude."
+          style={{ minHeight: '90px', padding: '14px 12px' }}
+        />
+      </div>
+    );
+  }
 
   return (
     <div

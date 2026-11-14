@@ -48,7 +48,7 @@ export function TransactionDrawer({ transaction, onClose }) {
             <div className="drawer-info-row">
               <span className="drawer-info-label">Transfer Amount</span>
               <span className="tabular-nums" style={{ fontSize: '22px', fontWeight: 700, color: 'var(--text-primary)' }}>
-                {transaction.amountFormatted || `$${transaction.amount?.toLocaleString('en-US', { minimumFractionDigits: 2 })}`}
+                {transaction.amountFormatted || `₹ ${transaction.amount?.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
               </span>
             </div>
 

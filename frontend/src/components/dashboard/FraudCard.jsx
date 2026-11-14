@@ -1,9 +1,30 @@
 import React from 'react';
 import { ArrowUpRight, Wifi } from 'lucide-react';
+import { ContextualEmptyState } from '../common/ContextualEmptyState';
 
 export function FraudCard({ metrics, onViewDetails }) {
-  const blockedFormatted = metrics?.fraud_blocked?.value_formatted || '₹4.82L';
-  const transactionsToday = metrics?.transactions_today?.value?.toLocaleString('en-IN') || '24,780';
+  if (!metrics) {
+    return (
+      <div className="quixotic-card">
+        <div className="card-header-quixotic">
+          <div className="card-title-block">
+            <span className="card-main-title">Fraud Prevention Goal</span>
+            <span className="card-sub-title">Total protected UPI volume</span>
+          </div>
+        </div>
+        <ContextualEmptyState 
+          message="Telemetry index will populate as target analyses conclude."
+          style={{ minHeight: '160px', padding: '24px 16px' }}
+        />
+      </div>
+    );
+  }
+
+  const blockedFormatted = metrics?.fraud_blocked?.value_formatted || '₹5.70L';
+  const fraudChangePct = metrics?.fraud_blocked?.change_percent ? `+${metrics.fraud_blocked.change_percent}%` : '+18.7%';
+  const balanceDisplay = metrics?.fraud_blocked?.value_inr 
+    ? `₹ ${metrics.fraud_blocked.value_inr.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+    : '₹ 78,989.09';
 
   return (
     <div className="quixotic-card">
@@ -38,7 +59,7 @@ export function FraudCard({ metrics, onViewDetails }) {
         </div>
 
         <div className="card-balance-large tabular-nums">
-          ₹ 78,989.09
+          {balanceDisplay}
         </div>
 
         <div className="card-card-bottom">
@@ -51,11 +72,11 @@ export function FraudCard({ metrics, onViewDetails }) {
       <div className="card-stat-pill-row">
         <div>
           <div className="stat-label-muted">Weekly Fraud Intercepted</div>
-          <div className="stat-value-bold tabular-nums">+₹ 3,945 INR</div>
+          <div className="stat-value-bold tabular-nums">+{blockedFormatted} INR</div>
         </div>
 
         <span className="mint-badge-pill tabular-nums">
-          +12.8%
+          {fraudChangePct}
         </span>
       </div>
     </div>

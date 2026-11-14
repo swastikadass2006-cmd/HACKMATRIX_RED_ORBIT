@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { ArrowUpRight, Search } from 'lucide-react';
+import { ContextualEmptyState } from '../common/ContextualEmptyState';
 
 export function LiveTransactions({ transactions = [], onSelectTransaction, onViewAll }) {
   const [searchTerm, setSearchTerm] = useState('');
@@ -14,51 +15,11 @@ export function LiveTransactions({ transactions = [], onSelectTransaction, onVie
     return matchesSearch && matchesStatus;
   });
 
-  // Fallback visual sample items matching reference image with Indian Rupee & UPI handles
-  const displayItems = filtered.length > 0 ? filtered : [
-    {
-      id: 'txn_101',
-      brand: 'Dribbble Design (India)',
-      pct: '+18.67%',
-      date: '16 Jun 2025',
-      timestamp: '10: 30 PM',
-      decision: 'Approved',
-      amountFormatted: '₹ 89,345.23',
-      amount: 89345.23,
-      payer: 'rah***@okaxis',
-      payee: 'dribbble@icici'
-    },
-    {
-      id: 'txn_102',
-      brand: 'Google Pay UPI',
-      pct: '+9.34%',
-      date: '15 Jun 2025',
-      timestamp: '11: 45 PM',
-      decision: 'Approved',
-      amountFormatted: '₹ 12,345.89',
-      amount: 12345.89,
-      payer: 'sne***@okaxis',
-      payee: 'google@upi'
-    },
-    {
-      id: 'txn_103',
-      brand: 'Amazon Shopping Pay',
-      pct: '+12.23%',
-      date: '14 Jun 2025',
-      timestamp: '10: 15 PM',
-      decision: 'Approved',
-      amountFormatted: '₹ 32,123.67',
-      amount: 32123.67,
-      payer: 'arj***@okaxis',
-      payee: 'amazon@ybl'
-    }
-  ];
-
   const getBrandAvatar = (item) => {
-    const name = item.brand || item.payee || 'UPI';
-    if (name.includes('Dribbble')) return { bg: '#FDECEE', color: '#EA4C89', char: '🏀' };
-    if (name.includes('Google')) return { bg: '#EAF8F2', color: '#108053', char: 'G' };
-    if (name.includes('Amazon')) return { bg: '#FEF4E6', color: '#FF9900', char: 'a' };
+    const name = item.payee || item.payer || 'UPI';
+    if (name.includes('dribbble')) return { bg: '#FDECEE', color: '#EA4C89', char: '🏀' };
+    if (name.includes('google') || name.includes('okaxis')) return { bg: '#EAF8F2', color: '#108053', char: 'G' };
+    if (name.includes('amazon') || name.includes('ybl')) return { bg: '#FEF4E6', color: '#FF9900', char: 'a' };
     return { bg: '#E5F7EC', color: '#0C7A53', char: '₹' };
   };
 
@@ -67,7 +28,7 @@ export function LiveTransactions({ transactions = [], onSelectTransaction, onVie
       style: 'currency',
       currency: 'INR',
       maximumFractionDigits: 2
-    }).format(val);
+    }).format(val || 0);
   };
 
   return (
@@ -131,56 +92,64 @@ export function LiveTransactions({ transactions = [], onSelectTransaction, onVie
         </select>
       </div>
 
-      {/* List */}
-      <div className="payment-history-list">
-        {displayItems.slice(0, 5).map((item) => {
-          const avatar = getBrandAvatar(item);
-          const isApproved = item.decision === 'Approved';
-          const isBlocked = item.decision === 'Blocked';
-          const statusText = isApproved ? 'Successful' : isBlocked ? 'Blocked' : 'Step-up';
-          const statusClass = isApproved ? 'approved' : isBlocked ? 'blocked' : 'step-up';
+      {/* List or Empty State */}
+      {filtered.length === 0 ? (
+        <ContextualEmptyState 
+          message="No investigations recorded in current operational session."
+          subtext="Telemetry index will populate as target analyses conclude."
+          style={{ minHeight: '140px', padding: '20px 14px' }}
+        />
+      ) : (
+        <div className="payment-history-list">
+          {filtered.slice(0, 5).map((item) => {
+            const avatar = getBrandAvatar(item);
+            const isApproved = item.decision === 'Approved';
+            const isBlocked = item.decision === 'Blocked';
+            const statusText = isApproved ? 'Successful' : isBlocked ? 'Blocked' : 'Step-up';
+            const statusClass = isApproved ? 'approved' : isBlocked ? 'blocked' : 'step-up';
 
-          return (
-            <div 
-              key={item.id} 
-              className="payment-history-row"
-              onClick={() => onSelectTransaction?.(item)}
-            >
-              <div className="pay-row-left">
-                <div className="pay-avatar-box" style={{ backgroundColor: avatar.bg, color: avatar.color }}>
-                  {avatar.char}
-                </div>
-                <div className="pay-info-col">
-                  <div className="pay-name-row">
-                    <span className="pay-name-text">{item.brand || item.payee || item.payer || 'UPI Payment'}</span>
-                    <span className="pay-sub-pct">{item.pct || `Risk: ${item.risk_score || 12}`}</span>
+            return (
+              <div 
+                key={item.id} 
+                className="payment-history-row"
+                onClick={() => onSelectTransaction?.(item)}
+              >
+                <div className="pay-row-left">
+                  <div className="pay-avatar-box" style={{ backgroundColor: avatar.bg, color: avatar.color }}>
+                    {avatar.char}
                   </div>
-                  <span className="pay-datetime-text">
-                    {item.date || 'Today'}, {item.timestamp}
+                  <div className="pay-info-col">
+                    <div className="pay-name-row">
+                      <span className="pay-name-text">{item.payee || item.payer || 'UPI Payment'}</span>
+                      <span className="pay-sub-pct">Risk: {item.risk_score ?? 12}</span>
+                    </div>
+                    <span className="pay-datetime-text">
+                      {item.timestamp || 'Just now'}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="pay-row-right">
+                  <span className="pay-amount-text tabular-nums">
+                    {formatAmountINR(item.amount)}
+                  </span>
+                  <span className={`pay-status-tag ${statusClass}`}>
+                    <span 
+                      style={{
+                        width: 5,
+                        height: 5,
+                        borderRadius: '50%',
+                        backgroundColor: isApproved ? 'var(--color-success)' : isBlocked ? 'var(--color-danger)' : 'var(--color-warning)'
+                      }} 
+                    />
+                    {statusText}
                   </span>
                 </div>
               </div>
-
-              <div className="pay-row-right">
-                <span className="pay-amount-text tabular-nums">
-                  {item.amountFormatted || formatAmountINR(item.amount)}
-                </span>
-                <span className={`pay-status-tag ${statusClass}`}>
-                  <span 
-                    style={{
-                      width: 5,
-                      height: 5,
-                      borderRadius: '50%',
-                      backgroundColor: isApproved ? 'var(--color-success)' : isBlocked ? 'var(--color-danger)' : 'var(--color-warning)'
-                    }} 
-                  />
-                  {statusText}
-                </span>
-              </div>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
