@@ -1,32 +1,18 @@
-﻿from pathlib import Path
+﻿import math
+from pathlib import Path
 import joblib
 from app.schemas import TransactionRequest
 
 MODEL_PATH = Path(__file__).resolve().parent / "artifacts" / "fraud_model.joblib"
-_COMPILED_TREES = None
+_COMPILED_XGB_TREES = None
 
 
 def _get_compiled_trees():
-    global _COMPILED_TREES
-    if _COMPILED_TREES is None and MODEL_PATH.exists():
+    global _COMPILED_XGB_TREES
+    if _COMPILED_XGB_TREES is None and MODEL_PATH.exists():
         bundle = joblib.load(MODEL_PATH)
-        clf = bundle["model"]
-        trees = []
-        for est in clf.estimators_:
-            t = est.tree_
-            left = t.children_left.tolist()
-            right = t.children_right.tolist()
-            feat = t.feature.tolist()
-            thresh = t.threshold.tolist()
-            vals = t.value
-            probs = []
-            for i in range(t.node_count):
-                row = vals[i][0]
-                s = float(row[0] + row[1])
-                probs.append(float(row[1]) / s if s > 0 else 0.0)
-            trees.append((left, right, feat, thresh, probs))
-        _COMPILED_TREES = trees
-    return _COMPILED_TREES
+        _COMPILED_XGB_TREES = bundle.get("compiled_xgb_trees")
+    return _COMPILED_XGB_TREES
 
 
 def predict_fraud_probability(
@@ -35,7 +21,7 @@ def predict_fraud_probability(
     graph_flags: dict,
 ) -> float:
     """
-    Evaluates the compiled RandomForest trees in pure Python tuples (<0.03ms latency).
+    Evaluates the compiled TrustLens XGBoost gradient boosted trees in pure Python (<0.03ms).
     """
     trees = _get_compiled_trees()
     if not trees:
@@ -56,14 +42,15 @@ def predict_fraud_probability(
         1.0 if graph_flags.get("is_hop_chain") else 0.0,
     )
 
-    prob_sum = 0.0
-    for left, right, feat, thresh, probs in trees:
-        node = 0
-        while left[node] != -1:
-            if vec[feat[node]] <= thresh[node]:
-                node = left[node]
-            else:
-                node = right[node]
-        prob_sum += probs[node]
+    margin = 0.0
+    for tree in trees:
+        node_idx = 0
+        while True:
+            yes_id, no_id, feat_idx, thresh, leaf_val = tree[node_idx]
+            if feat_idx == -1:
+                margin += leaf_val
+                break
+            node_idx = yes_id if vec[feat_idx] < thresh else no_id
 
-    return round(prob_sum / len(trees), 4)
+    prob = 1.0 / (1.0 + math.exp(-margin))
+    return round(prob, 4)
