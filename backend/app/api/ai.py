@@ -1,23 +1,26 @@
+
 from fastapi import APIRouter, HTTPException, Query
-from typing import Optional, Dict, Any
+from typing import Dict, Any
 
 from app.metrics.store import store
 from app.ai.tasks import generate_advice
 
 router = APIRouter(prefix="/ai", tags=["ai"])
 
+
 @router.get("/advice/{txn_id}")
 async def get_transaction_advice(
     txn_id: str,
-    lang: str = Query("en", description="Language code: 'en' (English), 'hi' (Hindi), or 'bn' (Bengali)")
+    lang: str = Query(
+        "en",
+        pattern="^(en|hi|bn)$",
+        description="Language: en, hi, or bn"
+    )
 ) -> Dict[str, Any]:
-    """
-    Returns AI-generated scam warnings and consumer safety advice for a transaction.
-    - Low-risk transactions (<40 risk score) bypass AI advice generation to conserve resources.
-    - High-risk transactions (>40) receive structured safety instructions in English, Hindi, or Bengali.
-    - Automatically falls back to localized templates if Gemini is unreachable.
-    """
+
+    # Fetch transaction details
     txn = store.get_transaction(txn_id)
+
     if not txn:
         raise HTTPException(
             status_code=404,
@@ -26,7 +29,7 @@ async def get_transaction_advice(
 
     risk_score = txn.get("risk_score", 0)
 
-    # Rule: Avoid generating unnecessary AI advice for transactions with risk scores below 40
+    # Low-risk transactions do not require AI advice
     if risk_score < 40:
         return {
             "txn_id": txn_id,
@@ -37,12 +40,15 @@ async def get_transaction_advice(
             "advice": None
         }
 
-    # Extract risk reasons or provide a default reason code
-    reasons = txn.get("reasons", [])
-    if not reasons:
-        reasons = [f"Flagged by ShieldPay policy engine (Risk Score: {risk_score})"]
+    # Extract risk reasons
+    reasons = txn.get("reasons", txn.get("reason_codes", []))
 
-    # Generate or fetch cached advice
+    if not reasons:
+        reasons = [
+            f"Flagged by ShieldPay policy engine (Risk Score: {risk_score})"
+        ]
+
+    # Generate AI advice using the existing Gemini task
     advice_payload = await generate_advice(txn_id, reasons, lang)
 
     return {
