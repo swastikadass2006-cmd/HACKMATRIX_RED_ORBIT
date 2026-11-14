@@ -1,0 +1,13 @@
+target/
+node_modules/
+dist/
+.git/
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.db
+*.sqlite3
+.DS_Store

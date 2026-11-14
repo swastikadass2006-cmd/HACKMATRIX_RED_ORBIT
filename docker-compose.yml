@@ -1,0 +1,86 @@
+services:
+  # -------------------------------------------------------------
+  # 1. ShieldPay Payments Core & Reliability Engine (Rust / Axum)
+  # -------------------------------------------------------------
+  core:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile.core
+    container_name: shieldpay-core
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+      - HMAC_SECRET=dev-secret-key
+      - COOLING_SECONDS=20
+      - RISK_ENGINE_URL=http://risk-ai:8000
+      - DATABASE_URL=/data/shieldpay.db
+    volumes:
+      - core-db-data:/data
+    networks:
+      - shieldpay-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+
+  # -------------------------------------------------------------
+  # 2. ShieldPay Risk Engine, AI & Attack Simulator (Python / FastAPI)
+  # -------------------------------------------------------------
+  risk-ai:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.python
+    container_name: shieldpay-risk-ai
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - PORT=8000
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - GEMINI_MODEL=${GEMINI_MODEL:-gemini-3.8-flash}
+    networks:
+      - shieldpay-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+
+  # -------------------------------------------------------------
+  # 3. ShieldPay Web Dashboard & Payer App (React / Vite / Nginx)
+  # -------------------------------------------------------------
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: shieldpay-frontend
+    restart: unless-stopped
+    ports:
+      - "5173:80"
+      - "80:80"
+    depends_on:
+      core:
+        condition: service_healthy
+      risk-ai:
+        condition: service_healthy
+    networks:
+      - shieldpay-net
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:80"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+
+volumes:
+  core-db-data:
+    driver: local
+
+networks:
+  shieldpay-net:
+    driver: bridge
