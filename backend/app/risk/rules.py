@@ -100,11 +100,7 @@ def evaluate_rules(
         or graph_flags.get("is_hop_chain")
     )
     if ml_prob >= 0.65 and has_hard_anomaly:
-<<<<<<< HEAD
-        add("ML_ANOMALY_HIGH", f"RandomForest anomaly confidence {int(ml_prob * 100)}%")
-=======
         add("ML_ANOMALY_HIGH", f"TrustLens XGBoost anomaly confidence {int(ml_prob * 100)}%")
->>>>>>> p2-risk
 
     total_score = min(100, sum(r.weight for r in reasons))
     reasons.sort(key=lambda r: r.weight, reverse=True)
