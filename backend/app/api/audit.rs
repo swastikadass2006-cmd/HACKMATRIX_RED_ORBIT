@@ -5,12 +5,12 @@ use axum::{
 };
 use uuid::Uuid;
 
-use crate::core::audit::AuditStore;
+use crate::state::AppState;
 
 pub async fn get_audit_trail(
     Path(txn_id): Path<Uuid>,
-    State(audit_store): State<AuditStore>,
+    State(state): State<AppState>,
 ) -> impl IntoResponse {
-    let entries = audit_store.get_by_txn_id(txn_id);
+    let entries = state.audit_store.get_by_txn_id(txn_id);
     Json(entries)
 }

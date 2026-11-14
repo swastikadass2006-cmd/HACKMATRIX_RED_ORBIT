@@ -6,12 +6,12 @@ use std::convert::Infallible;
 use tokio_stream::wrappers::BroadcastStream;
 use tokio_stream::{Stream, StreamExt};
 
-use crate::core::events::EventHub;
+use crate::state::AppState;
 
 pub async fn sse_handler(
-    State(hub): State<EventHub>,
+    State(state): State<AppState>,
 ) -> Sse<impl Stream<Item = Result<Event, Infallible>>> {
-    let rx = hub.subscribe();
+    let rx = state.event_hub.subscribe();
     let stream = BroadcastStream::new(rx).filter_map(|res| {
         match res {
             Ok(evt) => {

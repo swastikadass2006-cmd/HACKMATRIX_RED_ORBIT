@@ -5,13 +5,13 @@ use axum::{
 };
 use serde_json::json;
 
-use crate::core::events::EventHub;
 use crate::core::schemas::InternalEvent;
+use crate::state::AppState;
 
 pub async fn post_internal_event(
-    State(hub): State<EventHub>,
+    State(state): State<AppState>,
     Json(event): Json<InternalEvent>,
 ) -> impl IntoResponse {
-    hub.broadcast(event);
+    state.event_hub.broadcast(event);
     (StatusCode::ACCEPTED, Json(json!({ "status": "broadcasted" })))
 }
