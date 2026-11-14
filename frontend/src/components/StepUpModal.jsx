@@ -1,22 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 
-export default function StepUpModal({ txnId, apiBaseUrl = 'http://localhost:8080', onSuccess, onClose }) {
+export default function StepUpModal({ 
+  txnId, 
+  apiBaseUrl = 'http://localhost:3000', 
+  onSuccess, 
+  onClose 
+}) {
   const [otp, setOtp] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
-  const [secondsLeft, setSecondsLeft] = useState(120);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setSecondsLeft((prev) => (prev > 0 ? prev - 1 : 0));
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (otp.trim().length !== 6) {
-      setErrorMsg('Please enter a valid 6-digit numeric OTP');
+      setErrorMsg('Please enter a 6-digit numeric OTP');
       return;
     }
 
@@ -24,6 +21,7 @@ export default function StepUpModal({ txnId, apiBaseUrl = 'http://localhost:8080
     setErrorMsg(null);
 
     try {
+      // POST to http://localhost:3000/api/transactions/{txn_id}/stepup/verify
       const response = await fetch(`${apiBaseUrl}/api/transactions/${txnId}/stepup/verify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -32,19 +30,15 @@ export default function StepUpModal({ txnId, apiBaseUrl = 'http://localhost:8080
 
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(data.error || `HTTP ${response.status}`);
+        throw new Error(data.error || `Invalid OTP (HTTP ${response.status})`);
       }
 
-      if (data.status === 'SETTLED') {
-        onSuccess(data);
-      } else if (data.status === 'REJECTED') {
-        setErrorMsg('Invalid or expired OTP. Transaction has been rejected.');
-        setTimeout(() => onSuccess(data), 1500);
-      } else {
+      // Handle success: state transitions to APPROVED / SETTLED
+      if (onSuccess) {
         onSuccess(data);
       }
     } catch (err) {
-      setErrorMsg(err.message);
+      setErrorMsg(err.message || 'Verification failed');
     } finally {
       setLoading(false);
     }
@@ -53,103 +47,99 @@ export default function StepUpModal({ txnId, apiBaseUrl = 'http://localhost:8080
   return (
     <div style={{
       position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      background: 'rgba(15, 23, 42, 0.65)',
+      inset: 0,
+      backgroundColor: 'rgba(15, 23, 42, 0.6)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
       zIndex: 1000,
       backdropFilter: 'blur(4px)',
+      fontFamily: 'system-ui, sans-serif'
     }}>
       <div style={{
-        background: '#ffffff',
-        borderRadius: 12,
-        padding: '1.75rem',
-        maxWidth: 420,
+        backgroundColor: '#ffffff',
+        borderRadius: '16px',
+        padding: '24px',
+        maxWidth: '400px',
         width: '90%',
         boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
-        fontFamily: 'system-ui, -apple-system, sans-serif',
       }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-          <h3 style={{ margin: 0, color: '#1e293b', fontSize: '1.1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            🔐 Step-Up Authentication
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+          <h3 style={{ margin: 0, fontSize: '17px', fontWeight: 700, color: '#0f172a' }}>
+            🔐 Step-Up Verification
           </h3>
           <button
             onClick={onClose}
-            style={{ background: 'none', border: 'none', fontSize: '1.25rem', color: '#94a3b8', cursor: 'pointer' }}
+            style={{ background: 'none', border: 'none', fontSize: '18px', color: '#94a3b8', cursor: 'pointer' }}
           >
             ✕
           </button>
         </div>
 
-        <p style={{ margin: '0 0 1rem', fontSize: '0.85rem', color: '#64748b' }}>
-          This payment triggered an automated step-up challenge. Please enter the 6-digit numeric OTP sent to your registered device.
+        <p style={{ margin: '0 0 16px', fontSize: '13px', color: '#64748b' }}>
+          This payment scored within the step-up range. Enter the 6-digit OTP to authorize settlement.
         </p>
 
         {errorMsg && (
-          <div style={{ padding: '0.5rem 0.75rem', background: '#fee2e2', color: '#991b1b', borderRadius: 6, fontSize: '0.8rem', marginBottom: '1rem' }}>
+          <div style={{ padding: '8px 12px', borderRadius: '8px', backgroundColor: '#fef2f2', border: '1px solid #fecaca', color: '#991b1b', fontSize: '12.5px', marginBottom: '14px' }}>
             ⚠️ {errorMsg}
           </div>
         )}
 
         <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: '1rem' }}>
+          <div style={{ marginBottom: '16px' }}>
             <input
               type="text"
               maxLength={6}
-              placeholder="••••••"
+              placeholder="123456"
               value={otp}
               autoFocus
               onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
               style={{
                 width: '100%',
-                padding: '0.75rem',
-                fontSize: '1.5rem',
-                letterSpacing: '0.4rem',
+                padding: '10px',
+                fontSize: '22px',
+                letterSpacing: '0.3em',
                 textAlign: 'center',
-                borderRadius: 8,
+                borderRadius: '8px',
                 border: '1px solid #cbd5e1',
                 boxSizing: 'border-box',
                 fontWeight: 700,
-                color: '#1e293b',
+                color: '#0f172a',
+                outline: 'none'
               }}
             />
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', fontSize: '0.8rem', color: '#64748b' }}>
-            <span>Expires in: <strong>{secondsLeft}s</strong></span>
-            {secondsLeft === 0 && <span style={{ color: '#ef4444', fontWeight: 600 }}>OTP Expired</span>}
-          </div>
-
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <div style={{ display: 'flex', gap: '8px' }}>
             <button
               type="submit"
-              disabled={loading || secondsLeft === 0 || otp.length !== 6}
+              disabled={loading || otp.length !== 6}
               style={{
                 flex: 1,
-                padding: '0.75rem',
-                background: secondsLeft === 0 || otp.length !== 6 ? '#94a3b8' : '#2563eb',
+                padding: '10px',
+                backgroundColor: otp.length === 6 ? '#0c7a53' : '#94a3b8',
                 color: '#ffffff',
                 border: 'none',
-                borderRadius: 6,
-                fontWeight: 600,
-                cursor: secondsLeft === 0 || otp.length !== 6 ? 'not-allowed' : 'pointer',
+                borderRadius: '8px',
+                fontWeight: 700,
+                fontSize: '13px',
+                cursor: otp.length === 6 && !loading ? 'pointer' : 'not-allowed',
               }}
             >
-              {loading ? 'Verifying...' : 'Verify OTP'}
+              {loading ? 'Verifying...' : 'Submit OTP'}
             </button>
             <button
               type="button"
               onClick={onClose}
               style={{
-                padding: '0.75rem 1rem',
-                background: '#f1f5f9',
+                padding: '10px 16px',
+                backgroundColor: '#f1f5f9',
                 color: '#475569',
                 border: '1px solid #cbd5e1',
-                borderRadius: 6,
+                borderRadius: '8px',
+                fontSize: '13px',
+                fontWeight: 600,
                 cursor: 'pointer',
               }}
             >
