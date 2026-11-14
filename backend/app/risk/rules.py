@@ -10,6 +10,8 @@ RULE_WEIGHTS: dict[str, int] = {
     "MICRO_SPLIT": 40,
     "MULE_HOP_RECEIVER": 40,
     "IMPOSSIBLE_TRAVEL": 40,
+    "TRUSTLENS_TYPOSQUAT_VPA": 45,
+    "TRUSTLENS_HIGH_ENTROPY_VPA": 25,
     "VELOCITY_1M": 35,
     "AMOUNT_SPIKE_5X": 30,
     "NEW_DEVICE": 25,
@@ -54,6 +56,14 @@ def evaluate_rules(
     elif features["is_geo_mismatch"]:
         safe_city = _sanitize(txn.geo_city)
         add("GEO_MISMATCH", f"Geo mismatch ({safe_city})")
+
+    if features.get("is_typosquat"):
+        brand = _sanitize(features.get("target_brand") or "brand")
+        add("TRUSTLENS_TYPOSQUAT_VPA", f"TrustLens homograph/typosquat spoofing ({brand})")
+
+    if features.get("is_high_entropy_burner"):
+        ent = features.get("shannon_entropy", 0.0)
+        add("TRUSTLENS_HIGH_ENTROPY_VPA", f"TrustLens high-entropy burner VPA ({ent:.2f} bits)")
 
     if features["velocity_1m"] >= 2:
         add("VELOCITY_1M", f"Velocity spike ({features['velocity_1m'] + 1} txns in 60s)")

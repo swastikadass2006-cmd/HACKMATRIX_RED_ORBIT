@@ -89,3 +89,22 @@ def test_hybrid_ml_anomaly_reason_triggered():
         vpa_pasted_from_clipboard=True,
     ))
     assert any(r.code == "ML_ANOMALY_HIGH" for r in res.reasons)
+
+
+def test_trustlens_typosquat_entropy_and_web3_hash():
+    from app.risk.trustlens import generate_web3_threat_hash
+    reset_risk_state()
+    reset_graph_state()
+    seed_user_profile("rahul@okaxis", avg_amount=800.0, known_devices=["dev-1"], home_city="Kolkata")
+
+    res_typo = score(_make_txn(receiver_vpa="paytrn@ybl", amount=900.0))
+    codes_typo = {r.code for r in res_typo.reasons}
+    assert "TRUSTLENS_TYPOSQUAT_VPA" in codes_typo
+
+    res_ent = score(_make_txn(receiver_vpa="x9k2m7q4p1z8@ybl", amount=900.0))
+    codes_ent = {r.code for r in res_ent.reasons}
+    assert "TRUSTLENS_HIGH_ENTROPY_VPA" in codes_ent
+
+    h1 = generate_web3_threat_hash("tx-1", "rahul@okaxis", "paytrn@ybl", res_typo.score, res_typo.decision, list(codes_typo))
+    h2 = generate_web3_threat_hash("tx-1", "rahul@okaxis", "paytrn@ybl", res_typo.score, res_typo.decision, list(codes_typo))
+    assert h1 == h2 and h1.startswith("0x") and len(h1) == 18

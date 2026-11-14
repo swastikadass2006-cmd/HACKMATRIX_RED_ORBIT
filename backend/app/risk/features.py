@@ -1,3 +1,4 @@
+from app.risk.trustlens import analyze_vpa_lexical_signals
 from collections import defaultdict, deque
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -76,8 +77,14 @@ def extract_and_record_features(txn: TransactionRequest) -> dict:
     if len(profile.known_devices) == 0:
         profile.known_devices.add(txn.device_id)
 
+    tl_signals = analyze_vpa_lexical_signals(txn.receiver_vpa)
+
     return {
         "velocity_1m": velocity_1m,
+        "shannon_entropy": tl_signals["shannon_entropy"],
+        "is_high_entropy_burner": tl_signals["is_high_entropy_burner"],
+        "is_typosquat": tl_signals["is_typosquat"],
+        "target_brand": tl_signals["target_brand"],
         "velocity_10m": velocity_10m,
         "micro_split_count": micro_split_count,
         "amount_ratio": amount_ratio,
