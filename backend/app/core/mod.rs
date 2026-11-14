@@ -3,6 +3,7 @@
 pub mod audit;
 pub mod db;
 pub mod idempotency;
+pub mod ledger;
 pub mod masking;
 pub mod schemas;
 pub mod security;
