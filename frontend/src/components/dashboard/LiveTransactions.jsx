@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { ArrowUpRight, Search, ShieldCheck } from 'lucide-react';
+import { ArrowUpRight, Search } from 'lucide-react';
 
-export function LiveTransactions({ transactions = [], onSelectTransaction }) {
+export function LiveTransactions({ transactions = [], onSelectTransaction, onViewAll }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
 
@@ -14,40 +14,40 @@ export function LiveTransactions({ transactions = [], onSelectTransaction }) {
     return matchesSearch && matchesStatus;
   });
 
-  // Fallback visual sample items matching reference image
+  // Fallback visual sample items matching reference image with Indian Rupee & UPI handles
   const displayItems = filtered.length > 0 ? filtered : [
     {
       id: 'txn_101',
-      brand: 'Dribbble Design',
+      brand: 'Dribbble Design (India)',
       pct: '+18.67%',
       date: '16 Jun 2025',
       timestamp: '10: 30 PM',
       decision: 'Approved',
-      amountFormatted: '89, 345. 23 USD',
+      amountFormatted: '₹ 89,345.23',
       amount: 89345.23,
       payer: 'rah***@okaxis',
-      payee: 'dribbble@stripe'
+      payee: 'dribbble@icici'
     },
     {
       id: 'txn_102',
-      brand: 'Google Pay',
+      brand: 'Google Pay UPI',
       pct: '+9.34%',
       date: '15 Jun 2025',
       timestamp: '11: 45 PM',
       decision: 'Approved',
-      amountFormatted: '12, 345. 89 USD',
+      amountFormatted: '₹ 12,345.89',
       amount: 12345.89,
       payer: 'sne***@okaxis',
       payee: 'google@upi'
     },
     {
       id: 'txn_103',
-      brand: 'Amazon Shopping',
+      brand: 'Amazon Shopping Pay',
       pct: '+12.23%',
       date: '14 Jun 2025',
       timestamp: '10: 15 PM',
       decision: 'Approved',
-      amountFormatted: '32, 123. 67 USD',
+      amountFormatted: '₹ 32,123.67',
       amount: 32123.67,
       payer: 'arj***@okaxis',
       payee: 'amazon@ybl'
@@ -62,15 +62,27 @@ export function LiveTransactions({ transactions = [], onSelectTransaction }) {
     return { bg: '#E5F7EC', color: '#0C7A53', char: '₹' };
   };
 
+  const formatAmountINR = (val) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      maximumFractionDigits: 2
+    }).format(val);
+  };
+
   return (
     <div className="quixotic-card">
       {/* Header */}
       <div className="card-header-quixotic">
         <div className="card-title-block">
           <span className="card-main-title">Payment History</span>
-          <span className="card-sub-title">Recent payments history</span>
+          <span className="card-sub-title">Recent UPI payments history</span>
         </div>
-        <button className="card-corner-arrow-btn" aria-label="View all payments">
+        <button 
+          className="card-corner-arrow-btn" 
+          aria-label="View all payments"
+          onClick={onViewAll}
+        >
           <ArrowUpRight size={16} />
         </button>
       </div>
@@ -81,7 +93,7 @@ export function LiveTransactions({ transactions = [], onSelectTransaction }) {
           <Search size={13} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
           <input
             type="text"
-            placeholder="Search payments..."
+            placeholder="Search by UPI ID / Txn..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             style={{
@@ -108,7 +120,8 @@ export function LiveTransactions({ transactions = [], onSelectTransaction }) {
             backgroundColor: 'var(--bg-secondary)',
             padding: '0 8px',
             fontWeight: 600,
-            color: 'var(--text-secondary)'
+            color: 'var(--text-secondary)',
+            cursor: 'pointer'
           }}
         >
           <option value="all">All Status</option>
@@ -139,8 +152,8 @@ export function LiveTransactions({ transactions = [], onSelectTransaction }) {
                 </div>
                 <div className="pay-info-col">
                   <div className="pay-name-row">
-                    <span className="pay-name-text">{item.brand || item.payer || 'Transfer'}</span>
-                    <span className="pay-sub-pct">{item.pct || `Score ${item.risk_score || 12}`}</span>
+                    <span className="pay-name-text">{item.brand || item.payee || item.payer || 'UPI Payment'}</span>
+                    <span className="pay-sub-pct">{item.pct || `Risk: ${item.risk_score || 12}`}</span>
                   </div>
                   <span className="pay-datetime-text">
                     {item.date || 'Today'}, {item.timestamp}
@@ -150,7 +163,7 @@ export function LiveTransactions({ transactions = [], onSelectTransaction }) {
 
               <div className="pay-row-right">
                 <span className="pay-amount-text tabular-nums">
-                  {item.amountFormatted || `$${item.amount?.toLocaleString('en-US', { minimumFractionDigits: 2 })}`}
+                  {item.amountFormatted || formatAmountINR(item.amount)}
                 </span>
                 <span className={`pay-status-tag ${statusClass}`}>
                   <span 
