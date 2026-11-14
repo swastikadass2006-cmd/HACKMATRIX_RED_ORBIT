@@ -17,6 +17,7 @@ from app.api.policy import router as policy_router
 from app.api.simulator import router as simulator_router
 from app.api.stream import router as stream_router
 from app.api.alerts import router as alerts_router
+from app.api.ai import router as ai_router
 from simulator.scenarios import generate_simulated_event
 
 app = FastAPI(
@@ -40,6 +41,7 @@ app.include_router(metrics_router, prefix=settings.api_prefix)
 app.include_router(policy_router, prefix=settings.api_prefix)
 app.include_router(simulator_router, prefix=settings.api_prefix)
 app.include_router(alerts_router, prefix=settings.api_prefix)
+app.include_router(ai_router, prefix=settings.api_prefix)
 
 # Stream router available at both /api/stream and /stream for convenience
 app.include_router(stream_router, prefix=settings.api_prefix)
