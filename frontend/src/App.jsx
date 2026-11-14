@@ -7,6 +7,13 @@ import { LiveTransactions } from './components/dashboard/LiveTransactions';
 import { TransactionChart } from './components/dashboard/TransactionChart';
 import { RightColumnCards } from './components/dashboard/RightColumnCards';
 import { TransactionDrawer } from './components/dashboard/TransactionDrawer';
+import { TransactionsView } from './components/views/TransactionsView';
+import { AnalyticsView } from './components/views/AnalyticsView';
+import { PolicyView } from './components/views/PolicyView';
+import { AlertsView } from './components/views/AlertsView';
+import { ContactsView } from './components/views/ContactsView';
+import { SettingsView } from './components/views/SettingsView';
+import { SimulatorView } from './components/views/SimulatorView';
 import { 
   fetchMetrics, 
   fetchTransactions, 
@@ -15,8 +22,7 @@ import {
 import { createTransactionStream } from './api/sse';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState('Dashboard');
-  const [activeNav, setActiveNav] = useState('dashboard');
+  const [activeView, setActiveView] = useState('dashboard');
   const [metrics, setMetrics] = useState(null);
   const [transactions, setTransactions] = useState([]);
   const [alerts, setAlerts] = useState([]);
@@ -26,7 +32,7 @@ export default function App() {
     try {
       const [m, txnsRes, alt] = await Promise.all([
         fetchMetrics().catch(() => null),
-        fetchTransactions({ page: 1, limit: 15 }).catch(() => ({ transactions: [] })),
+        fetchTransactions({ page: 1, limit: 30 }).catch(() => ({ transactions: [] })),
         fetchAlerts().catch(() => [])
       ]);
       if (m) setMetrics(m);
@@ -54,63 +60,130 @@ export default function App() {
     return () => unsubscribe();
   }, []);
 
+  // View router renderer
+  const renderCurrentView = () => {
+    switch (activeView) {
+      case 'transactions':
+        return (
+          <TransactionsView 
+            transactions={transactions} 
+            onSelectTransaction={setSelectedTxn}
+            onBackToDashboard={() => setActiveView('dashboard')}
+          />
+        );
+      case 'analytics':
+        return (
+          <AnalyticsView 
+            metrics={metrics}
+            onBackToDashboard={() => setActiveView('dashboard')}
+          />
+        );
+      case 'policy':
+        return (
+          <PolicyView 
+            onBackToDashboard={() => setActiveView('dashboard')}
+          />
+        );
+      case 'alerts':
+        return (
+          <AlertsView 
+            alerts={alerts}
+            onBackToDashboard={() => setActiveView('dashboard')}
+          />
+        );
+      case 'contacts':
+        return (
+          <ContactsView 
+            onBackToDashboard={() => setActiveView('dashboard')}
+          />
+        );
+      case 'simulator':
+        return (
+          <SimulatorView 
+            onBackToDashboard={() => setActiveView('dashboard')}
+            onSimulationDone={(res) => {
+              if (res?.transaction) {
+                setTransactions((prev) => [res.transaction, ...prev]);
+                loadData();
+              }
+            }}
+          />
+        );
+      case 'settings':
+        return (
+          <SettingsView 
+            onBackToDashboard={() => setActiveView('dashboard')}
+          />
+        );
+      case 'dashboard':
+      default:
+        return (
+          <main className="dashboard-grid-3col">
+            {/* Column 1: Payment Goal Card with Emerald RuPay Card + Payment History */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              <FraudCard 
+                metrics={metrics} 
+                onViewDetails={() => setActiveView('analytics')}
+              />
+              <LiveTransactions 
+                transactions={transactions} 
+                onSelectTransaction={setSelectedTxn} 
+                onViewAll={() => setActiveView('transactions')}
+              />
+            </div>
+
+            {/* Column 2: Engagement Rate Chart (Striped Mint Bars) + Operational Controls */}
+            <div>
+              <TransactionChart 
+                onSimulationTriggered={(res) => {
+                  if (res?.transaction) {
+                    setTransactions((prev) => [res.transaction, ...prev]);
+                    loadData();
+                  }
+                }} 
+              />
+            </div>
+
+            {/* Column 3: Payment Goal Wave Chart + Amount of Credit + Mandatory Payments Avatars */}
+            <div>
+              <RightColumnCards 
+                metrics={metrics} 
+                alert={alerts[0]} 
+                onTriggerAlert={() => setActiveView('alerts')}
+                onViewAnalytics={() => setActiveView('analytics')}
+              />
+            </div>
+          </main>
+        );
+    }
+  };
+
   return (
     <div className="app-container">
-      {/* Top Navigation Bar */}
+      {/* Top Navigation Bar with active navigation tracking */}
       <Topbar 
-        activeTab={activeTab} 
-        onSelectTab={setActiveTab} 
+        activeView={activeView} 
+        onSelectView={setActiveView} 
+        unreadAlertCount={alerts.length}
       />
 
-      {/* Greeting & Date Header */}
-      <DashboardHeader 
-        onAddAction={() => {
-          if (transactions.length > 0) setSelectedTxn(transactions[0]);
-        }} 
-      />
+      {/* Greeting & Date Header (only on dashboard view) */}
+      {activeView === 'dashboard' && (
+        <DashboardHeader 
+          onAddAction={() => setActiveView('simulator')} 
+        />
+      )}
 
-      {/* Main Layout: Slim Floating Dock + 3-Column Content Grid */}
+      {/* Main Layout: Slim Floating Dock + Active View */}
       <div className="dashboard-main-layout">
         {/* Left Slim Floating Rail */}
         <Sidebar 
-          activeNav={activeNav} 
-          onSelectNav={setActiveNav} 
+          activeView={activeView} 
+          onSelectView={setActiveView} 
         />
 
-        {/* 3-Column Grid */}
-        <main className="dashboard-grid-3col">
-          {/* Column 1: Payment Goal Card with Emerald Visa + Payment History */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-            <FraudCard metrics={metrics} />
-            <LiveTransactions 
-              transactions={transactions} 
-              onSelectTransaction={setSelectedTxn} 
-            />
-          </div>
-
-          {/* Column 2: Engagement Rate Chart (Striped Mint Bars) + Operational Controls */}
-          <div>
-            <TransactionChart 
-              onSimulationTriggered={(res) => {
-                if (res?.transaction) {
-                  setTransactions((prev) => [res.transaction, ...prev]);
-                  loadData();
-                }
-              }} 
-            />
-          </div>
-
-          {/* Column 3: Payment Goal Wave Chart + Amount of Credit + Mandatory Payments Avatars */}
-          <div>
-            <RightColumnCards 
-              metrics={metrics} 
-              alert={alerts[0]} 
-              onTriggerAlert={() => {
-                if (transactions.length > 0) setSelectedTxn(transactions[0]);
-              }} 
-            />
-          </div>
-        </main>
+        {/* Dynamic Interactive View */}
+        {renderCurrentView()}
       </div>
 
       {/* Transaction Inspection Drawer */}
