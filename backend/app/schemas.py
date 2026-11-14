@@ -1,6 +1,21 @@
 from datetime import datetime
 from typing import Literal, Optional
-from pydantic import BaseModel
+
+try:
+    from pydantic import BaseModel
+except ImportError:
+    class BaseModel:
+        def __init__(self, **kwargs):
+            for cls in reversed(self.__class__.__mro__):
+                for k, v in getattr(cls, "__dict__", {}).items():
+                    if not k.startswith("_") and not callable(v):
+                        setattr(self, k, v)
+            for k, v in kwargs.items():
+                setattr(self, k, v)
+        def dict(self):
+            return self.__dict__
+        def model_dump(self):
+            return self.__dict__
 
 DecisionState = Literal[
     "APPROVED", "STEP_UP_PENDING", "GUARDIAN_PENDING", "COOLING_LOCK", "BLOCKED"

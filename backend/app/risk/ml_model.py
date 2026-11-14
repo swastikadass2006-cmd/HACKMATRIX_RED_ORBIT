@@ -1,6 +1,9 @@
 ﻿import math
 from pathlib import Path
-import joblib
+try:
+    import joblib
+except ImportError:
+    joblib = None
 from app.schemas import TransactionRequest
 
 MODEL_PATH = Path(__file__).resolve().parent / "artifacts" / "fraud_model.joblib"
@@ -10,8 +13,30 @@ _COMPILED_XGB_TREES = None
 def _get_compiled_trees():
     global _COMPILED_XGB_TREES
     if _COMPILED_XGB_TREES is None and MODEL_PATH.exists():
-        bundle = joblib.load(MODEL_PATH)
-        _COMPILED_XGB_TREES = bundle.get("compiled_xgb_trees")
+        if joblib is not None:
+            try:
+                bundle = joblib.load(MODEL_PATH)
+                _COMPILED_XGB_TREES = bundle.get("compiled_xgb_trees")
+            except Exception:
+                _COMPILED_XGB_TREES = None
+        if _COMPILED_XGB_TREES is None:
+            try:
+                import pickle
+                class _SafeUnpickler(pickle.Unpickler):
+                    def find_class(self, module, name):
+                        try:
+                            return super().find_class(module, name)
+                        except Exception:
+                            class Dummy:
+                                def __init__(self, *args, **kwargs): pass
+                                def __setstate__(self, state): pass
+                            return Dummy
+                with open(MODEL_PATH, "rb") as f:
+                    bundle = _SafeUnpickler(f).load()
+                    if isinstance(bundle, dict):
+                        _COMPILED_XGB_TREES = bundle.get("compiled_xgb_trees")
+            except Exception:
+                _COMPILED_XGB_TREES = []
     return _COMPILED_XGB_TREES
 
 

@@ -108,3 +108,81 @@ def test_trustlens_typosquat_entropy_and_web3_hash():
     h1 = generate_web3_threat_hash("tx-1", "rahul@okaxis", "paytrn@ybl", res_typo.score, res_typo.decision, list(codes_typo))
     h2 = generate_web3_threat_hash("tx-1", "rahul@okaxis", "paytrn@ybl", res_typo.score, res_typo.decision, list(codes_typo))
     assert h1 == h2 and h1.startswith("0x") and len(h1) == 18
+
+
+def test_trustlens_ml_anomaly_additive_signal():
+    """Verify TrustLens ML acts as an additive secondary signal with +20 reason code."""
+    reset_risk_state()
+    reset_graph_state()
+    seed_user_profile("victim@okaxis", avg_amount=500.0, known_devices=["dev-1"], known_payees=["shop@ybl"])
+
+    # Normal transaction: Not flagged by ML
+    normal_res = score(_make_txn(sender_vpa="victim@okaxis", receiver_vpa="shop@ybl", amount=200.0))
+    assert not any(r.code == "TRUSTLENS_ML_ANOMALY" for r in normal_res.reasons)
+
+    # Flagged transaction: Phishing/burner VPA with suspicious TLD and keywords
+    flagged_res = score(_make_txn(
+        sender_vpa="victim@okaxis",
+        receiver_vpa="sbi-verify-login.xyz",
+        amount=200.0,
+    ))
+    anomaly_reasons = [r for r in flagged_res.reasons if r.code == "TRUSTLENS_ML_ANOMALY"]
+    assert len(anomaly_reasons) == 1
+    assert anomaly_reasons[0].weight == 20
+    assert "TrustLens ML Anomaly" in anomaly_reasons[0].label
+    assert flagged_res.score >= 20
+
+
+def test_trustlens_ml_graceful_timeout_fallback(monkeypatch):
+    """Verify strict 20ms timeout & error fallback never crashes risk engine."""
+    import time
+    from app.risk import trustlens_inference
+
+    reset_risk_state()
+    reset_graph_state()
+    seed_user_profile("user@okaxis", avg_amount=500.0, known_devices=["dev-1"])
+
+    # Simulate slow/lagging ML inference (>20ms)
+    def lagging_inference(*args, **kwargs):
+        time.sleep(0.050)  # 50ms exceeds 20ms timeout
+        return {"flagged": True, "probability": 0.99}
+
+    monkeypatch.setattr(trustlens_inference, "_execute_raw_inference", lagging_inference)
+    trustlens_inference._CACHE.clear()
+
+    # Must complete and gracefully fall back without crashing
+    res = score(_make_txn(sender_vpa="user@okaxis", receiver_vpa="slow-ml@xyz"))
+    assert not any(r.code == "TRUSTLENS_ML_ANOMALY" for r in res.reasons)
+
+    # Simulate ML model exception
+    def crashing_inference(*args, **kwargs):
+        raise RuntimeError("ML model corrupted or GPU CUDA out of memory")
+
+    monkeypatch.setattr(trustlens_inference, "_execute_raw_inference", crashing_inference)
+    trustlens_inference._CACHE.clear()
+
+    res_crash = score(_make_txn(sender_vpa="user@okaxis", receiver_vpa="crash-ml@xyz"))
+    assert not any(r.code == "TRUSTLENS_ML_ANOMALY" for r in res_crash.reasons)
+
+
+def test_trustlens_model_efficient_startup_loading(monkeypatch):
+    """Verify .joblib model is loaded at startup and NOT reloaded per-request."""
+    from app.risk import trustlens_inference
+
+    load_call_count = 0
+    orig_load = trustlens_inference.load_trustlens_model
+
+    def counting_load(*args, **kwargs):
+        nonlocal load_call_count
+        load_call_count += 1
+        return orig_load(*args, **kwargs)
+
+    monkeypatch.setattr(trustlens_inference, "load_trustlens_model", counting_load)
+
+    # Calling score() multiple times must not trigger per-request load
+    initial_count = load_call_count
+    for i in range(10):
+        score(_make_txn(txn_id=f"st-{i}", receiver_vpa=f"merchant-{i}@ybl"))
+
+    assert load_call_count == initial_count
+
