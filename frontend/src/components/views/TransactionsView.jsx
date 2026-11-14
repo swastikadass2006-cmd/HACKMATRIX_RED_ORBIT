@@ -24,9 +24,9 @@ export function TransactionsView({ transactions = [], onSelectTransaction, onBac
   };
 
   const getStatusColor = (decision) => {
-    if (decision === 'Approved') return { text: '#0C7A53', bg: '#E5F7EC' };
-    if (decision === 'Blocked') return { text: '#DA3A49', bg: '#FDECEE' };
-    return { text: '#D98218', bg: '#FEF4E6' };
+    if (decision === 'Approved') return { text: 'var(--accent-primary)', bg: 'var(--accent-mint-light)' };
+    if (decision === 'Blocked') return { text: 'var(--color-danger)', bg: 'var(--color-danger-bg)' };
+    return { text: 'var(--color-warning)', bg: 'var(--color-warning-bg)' };
   };
 
   return (
@@ -53,7 +53,7 @@ export function TransactionsView({ transactions = [], onSelectTransaction, onBac
               <Search size={14} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
               <input
                 type="text"
-                placeholder="Search Txn ID or UPI..."
+                placeholder="Search Txn ID or UPI…"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 style={{
@@ -128,7 +128,7 @@ export function TransactionsView({ transactions = [], onSelectTransaction, onBac
                     <tr 
                       key={txn.id}
                       onClick={() => onSelectTransaction?.(txn)}
-                      style={{ borderBottom: '1px solid var(--border-subtle)', cursor: 'pointer', transition: 'background-color 0.15s' }}
+                      style={{ borderBottom: '1px solid var(--border-subtle)', cursor: 'pointer', transition: 'background-color 0.15s ease' }}
                       onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'}
                       onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                     >
@@ -175,7 +175,7 @@ export function TransactionsView({ transactions = [], onSelectTransaction, onBac
                             padding: '4px 10px',
                             borderRadius: '9999px',
                             border: '1px solid var(--border-light)',
-                            backgroundColor: '#FFFFFF',
+                            backgroundColor: 'var(--bg-surface)',
                             fontSize: '11px',
                             fontWeight: 600,
                             color: 'var(--accent-primary)',

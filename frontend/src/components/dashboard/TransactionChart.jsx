@@ -194,12 +194,12 @@ export function TransactionChart({
       {/* Horizontal Scrollable Bar Chart Wrapper */}
       <div className="bar-chart-quixotic-wrap">
         <div className="chart-horizontal-scroll" ref={scrollContainerRef}>
-          <svg width={totalSvgWidth} height="230" viewBox={`0 0 ${totalSvgWidth} 230`} style={{ overflow: 'visible', minWidth: `${totalSvgWidth}px` }}>
+          <svg aria-hidden="true" width={totalSvgWidth} height="230" viewBox={`0 0 ${totalSvgWidth} 230`} style={{ overflow: 'visible', minWidth: `${totalSvgWidth}px` }}>
             <defs>
-              {/* Diagonal stripe pattern for the bars */}
+              {/* Diagonal stripe pattern for the bars - dynamic theme responsive */}
               <pattern id="diagonalHatch" width="6" height="6" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
-                <line x1="0" y1="0" x2="0" y2="6" stroke="#48A882" strokeWidth="2.2" />
-                <rect width="6" height="6" fill="#C5E8D8" opacity="0.85" />
+                <line x1="0" y1="0" x2="0" y2="6" stroke="var(--accent-primary)" strokeWidth="2.2" opacity="0.65" />
+                <rect width="6" height="6" fill="var(--accent-mint-light)" opacity="0.85" />
               </pattern>
             </defs>
 
@@ -208,8 +208,8 @@ export function TransactionChart({
               const y = 195 - (level / 5) * 160;
               return (
                 <g key={level}>
-                  <line x1="30" y1={y} x2={totalSvgWidth - 20} y2={y} stroke="#EEF3EF" strokeDasharray="3 3" />
-                  <text x="18" y={y + 4} fontSize="10" fill="#9BA8A0" textAnchor="end" className="tabular-nums">
+                  <line x1="30" y1={y} x2={totalSvgWidth - 20} y2={y} stroke="var(--border-light)" strokeDasharray="3 3" />
+                  <text x="18" y={y + 4} fontSize="10" fill="var(--text-muted)" textAnchor="end" className="tabular-nums">
                     {level === 0 ? '0' : `${level}k`}
                   </text>
                 </g>
@@ -252,21 +252,21 @@ export function TransactionChart({
                         width={barWidth}
                         height={barHeight}
                         rx="19"
-                        fill="#0C7A53"
+                        fill="var(--accent-primary)"
                         style={{
-                          filter: isHovered ? 'brightness(1.08)' : 'none',
-                          transition: 'all 0.25s ease'
+                          filter: isHovered ? 'brightness(1.12)' : 'none',
+                          transition: 'filter 0.25s ease'
                         }}
                       />
                       {/* Floating Tooltip Indicator */}
-                      <circle cx={x + barWidth / 2} cy={y - 10} r="3.5" fill="#0C7A53" />
+                      <circle cx={x + barWidth / 2} cy={y - 10} r="3.5" fill="var(--accent-primary)" />
                       <rect
                         x={x + barWidth / 2 - 25}
                         y={y - 34}
                         width="50"
                         height="19"
                         rx="9.5"
-                        fill="#0C7A53"
+                        fill="var(--accent-primary)"
                       />
                       <text
                         x={x + barWidth / 2}
@@ -289,9 +289,9 @@ export function TransactionChart({
                       rx="19"
                       fill="url(#diagonalHatch)"
                       opacity={isHovered ? 0.95 : 0.85}
-                      stroke={isHovered ? '#0C7A53' : 'none'}
+                      stroke={isHovered ? 'var(--accent-primary)' : 'none'}
                       strokeWidth={isHovered ? 1.5 : 0}
-                      style={{ transition: 'all 0.2s ease' }}
+                      style={{ transition: 'stroke 0.2s ease, opacity 0.2s ease' }}
                     />
                   )}
 
@@ -301,7 +301,7 @@ export function TransactionChart({
                     y="218"
                     fontSize="11"
                     fontWeight={isHero ? "700" : "500"}
-                    fill={isHero ? "#0C7A53" : "#74837B"}
+                    fill={isHero ? "var(--accent-primary)" : "var(--text-secondary)"}
                     textAnchor="middle"
                   >
                     {bar.label}
@@ -326,11 +326,11 @@ export function TransactionChart({
       </div>
 
       {/* Integrated Operational Controls Subgrid */}
-      <div className="operations-subgrid" style={{ marginTop: '14px' }}>
+      <div className="operations-subgrid" style={{ marginTop: '16px' }}>
         {/* Attack Simulator */}
-        <div className="mini-control-card">
+        <div className="mini-control-panel">
           <div className="mini-control-title">
-            <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <PlayCircle size={14} style={{ color: 'var(--accent-primary)' }} />
               Attack Simulator
             </span>
@@ -356,9 +356,9 @@ export function TransactionChart({
         </div>
 
         {/* Policy Sliders */}
-        <div className="mini-control-card">
+        <div className="mini-control-panel">
           <div className="mini-control-title">
-            <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <Sliders size={14} style={{ color: 'var(--accent-primary)' }} />
               Fraud Thresholds
             </span>
@@ -366,11 +366,11 @@ export function TransactionChart({
               type="button"
               onClick={handleSavePolicy}
               style={{
-                fontSize: '10.5px',
-                padding: '2px 8px',
+                fontSize: '11px',
+                padding: '4px 8px',
                 borderRadius: '9999px',
                 backgroundColor: 'var(--accent-primary)',
-                color: '#fff',
+                color: 'var(--text-inverse)',
                 border: 'none',
                 fontWeight: 600,
                 cursor: 'pointer'

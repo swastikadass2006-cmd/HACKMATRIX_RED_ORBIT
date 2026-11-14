@@ -14,12 +14,12 @@ export function SecurityCoreErrorBanner({
         justifyContent: 'space-between',
         padding: '12px 18px',
         borderRadius: '16px',
-        backgroundColor: '#FDECEE',
-        border: '1px solid #F5C2C7',
-        color: '#DA3A49',
+        backgroundColor: 'var(--color-danger-bg)',
+        border: '1px solid var(--color-danger-border)',
+        color: 'var(--color-danger)',
         fontSize: '13px',
         fontWeight: 600,
-        boxShadow: '0 2px 8px rgba(218, 58, 73, 0.08)',
+        boxShadow: 'var(--shadow-subtle)',
         marginBottom: '16px'
       }}
     >
@@ -37,8 +37,8 @@ export function SecurityCoreErrorBanner({
             gap: '6px',
             padding: '5px 12px',
             borderRadius: '9999px',
-            backgroundColor: '#DA3A49',
-            color: '#FFFFFF',
+            backgroundColor: 'var(--color-danger)',
+            color: 'var(--text-inverse)',
             border: 'none',
             fontSize: '11.5px',
             fontWeight: 600,

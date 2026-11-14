@@ -29,14 +29,14 @@ export function RiskDistribution({ distributionData }) {
 
       <div className="donut-layout">
         <div className="donut-svg-wrapper">
-          <svg viewBox="0 0 120 120" style={{ transform: 'rotate(-90deg)', width: '100%', height: '100%' }}>
+          <svg aria-hidden="true" viewBox="0 0 120 120" style={{ transform: 'rotate(-90deg)', width: '100%', height: '100%' }}>
             {/* Background circle */}
             <circle
               cx="60"
               cy="60"
               r={radius}
               fill="transparent"
-              stroke="#F1F5F9"
+              stroke="var(--border-subtle)"
               strokeWidth={strokeWidth}
             />
             {/* Low Risk segment */}
@@ -45,7 +45,7 @@ export function RiskDistribution({ distributionData }) {
               cy="60"
               r={radius}
               fill="transparent"
-              stroke="#16A34A"
+              stroke="var(--color-success)"
               strokeWidth={strokeWidth}
               strokeDasharray={`${lowLength} ${circumference}`}
               strokeDashoffset={lowOffset}
@@ -56,7 +56,7 @@ export function RiskDistribution({ distributionData }) {
               cy="60"
               r={radius}
               fill="transparent"
-              stroke="#D97706"
+              stroke="var(--color-warning)"
               strokeWidth={strokeWidth}
               strokeDasharray={`${medLength} ${circumference}`}
               strokeDashoffset={medOffset}
@@ -67,7 +67,7 @@ export function RiskDistribution({ distributionData }) {
               cy="60"
               r={radius}
               fill="transparent"
-              stroke="#DC2626"
+              stroke="var(--color-danger)"
               strokeWidth={strokeWidth}
               strokeDasharray={`${highLength} ${circumference}`}
               strokeDashoffset={highOffset}
@@ -83,7 +83,7 @@ export function RiskDistribution({ distributionData }) {
         <div className="risk-breakdown-list">
           <div className="risk-breakdown-row">
             <span className="risk-tag">
-              <span className="legend-bullet" style={{ backgroundColor: '#16A34A' }} />
+              <span className="legend-bullet" style={{ backgroundColor: 'var(--color-success)' }} />
               Low risk
             </span>
             <span className="risk-value tabular-nums">{low.percentage}%</span>
@@ -91,7 +91,7 @@ export function RiskDistribution({ distributionData }) {
 
           <div className="risk-breakdown-row">
             <span className="risk-tag">
-              <span className="legend-bullet" style={{ backgroundColor: '#D97706' }} />
+              <span className="legend-bullet" style={{ backgroundColor: 'var(--color-warning)' }} />
               Medium risk
             </span>
             <span className="risk-value tabular-nums">{med.percentage}%</span>
@@ -99,7 +99,7 @@ export function RiskDistribution({ distributionData }) {
 
           <div className="risk-breakdown-row">
             <span className="risk-tag">
-              <span className="legend-bullet" style={{ backgroundColor: '#DC2626' }} />
+              <span className="legend-bullet" style={{ backgroundColor: 'var(--color-danger)' }} />
               High risk
             </span>
             <span className="risk-value tabular-nums">{high.percentage}%</span>

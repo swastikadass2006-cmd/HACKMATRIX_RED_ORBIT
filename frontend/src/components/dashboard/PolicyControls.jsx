@@ -84,7 +84,7 @@ export function PolicyControls({ initialPolicy, onPolicySaved }) {
             display: 'flex',
             alignItems: 'center',
             gap: '6px',
-            color: statusMessage.type === 'success' ? '#16A34A' : '#DC2626'
+            color: statusMessage.type === 'success' ? 'var(--color-success)' : 'var(--color-danger)'
           }}
         >
           {statusMessage.type === 'success' ? <Check size={13} /> : <AlertCircle size={13} />}
@@ -97,7 +97,7 @@ export function PolicyControls({ initialPolicy, onPolicySaved }) {
         onClick={handleApply}
         disabled={isSaving}
       >
-        {isSaving ? 'Applying changes...' : 'Apply policy changes'}
+        {isSaving ? 'Applying changes…' : 'Apply policy changes'}
       </button>
     </div>
   );

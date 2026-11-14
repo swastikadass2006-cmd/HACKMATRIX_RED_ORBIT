@@ -33,6 +33,7 @@ export function AiSecurityAssistant({
     }
   ]);
   const [inputValue, setInputValue] = useState('');
+  const [isInputFocused, setIsInputFocused] = useState(false);
   const [loading, setLoading] = useState(false);
   const [activeContext, setActiveContext] = useState(initialContext);
   const [isMinimized, setIsMinimized] = useState(false);
@@ -142,19 +143,19 @@ export function AiSecurityAssistant({
   const renderFormattedContent = (content) => {
     const lines = content.split('\n');
     return (
-      <div style={{ lineHeight: 1.5, fontSize: '13px' }}>
+      <div style={{ lineHeight: 1.6, fontSize: '13.5px', color: 'var(--text-primary)' }}>
         {lines.map((line, idx) => {
           // Headers
           if (line.startsWith('### ')) {
             return (
-              <h4 key={idx} style={{ margin: '8px 0 4px', fontSize: '14px', fontWeight: 700, color: '#0F172A' }}>
+              <h4 key={idx} style={{ margin: '8px 0 4px', fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)' }}>
                 {line.replace('### ', '')}
               </h4>
             );
           }
           if (line.startsWith('## ')) {
             return (
-              <h3 key={idx} style={{ margin: '10px 0 6px', fontSize: '15px', fontWeight: 800, color: '#0F172A' }}>
+              <h3 key={idx} style={{ margin: '10px 0 6px', fontSize: '15px', fontWeight: 800, color: 'var(--text-primary)' }}>
                 {line.replace('## ', '')}
               </h3>
             );
@@ -194,17 +195,18 @@ export function AiSecurityAssistant({
     const parts = text.split(/(\*\*.*?\*\*|`.*?`)/g);
     return parts.map((part, i) => {
       if (part.startsWith('**') && part.endsWith('**')) {
-        return <strong key={i} style={{ color: '#0F172A' }}>{part.slice(2, -2)}</strong>;
+        return <strong key={i} style={{ color: 'var(--text-primary)', fontWeight: 700 }}>{part.slice(2, -2)}</strong>;
       }
       if (part.startsWith('`') && part.endsWith('`')) {
         return (
           <code key={i} style={{ 
-            backgroundColor: '#F1F5F9', 
-            padding: '2px 5px', 
+            backgroundColor: 'var(--bg-secondary)', 
+            padding: '2px 6px', 
             borderRadius: '4px', 
-            fontSize: '11px',
+            fontSize: '11.5px',
             fontFamily: 'monospace',
-            color: '#0F766E'
+            color: 'var(--accent-primary)',
+            border: '1px solid var(--border-light)'
           }}>
             {part.slice(1, -1)}
           </code>
@@ -223,22 +225,22 @@ export function AiSecurityAssistant({
     right: '24px',
     width: isMinimized ? '320px' : '420px',
     height: isMinimized ? '56px' : '620px',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'var(--bg-surface)',
     borderRadius: '16px',
-    boxShadow: '0 20px 50px rgba(15, 23, 42, 0.22), 0 4px 12px rgba(15, 23, 42, 0.1)',
-    border: '1.5px solid #CBD5E1',
+    boxShadow: 'var(--shadow-floating)',
+    border: '1px solid var(--border-light)',
     display: 'flex',
     flexDirection: 'column',
     overflow: 'hidden',
     zIndex: 9999,
-    transition: 'all 0.25s ease'
+    transition: 'width 0.25s ease, height 0.25s ease'
   } : {
     display: 'flex',
     flexDirection: 'column',
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'var(--bg-surface)',
     borderRadius: '16px',
-    border: '1px solid var(--border-card)',
+    border: '1px solid var(--border-light)',
     boxShadow: 'var(--shadow-card)',
     overflow: 'hidden',
     minHeight: '600px'
@@ -248,45 +250,46 @@ export function AiSecurityAssistant({
     <div style={containerStyle}>
       {/* Top Header Bar */}
       <div style={{
-        padding: '12px 16px',
-        backgroundColor: '#0F172A',
-        color: '#F8FAFC',
+        padding: '14px 18px',
+        backgroundColor: 'var(--bg-surface)',
+        color: 'var(--text-primary)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        borderBottom: '1px solid #334155'
+        borderBottom: '1px solid var(--border-light)'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <div style={{
-            width: '32px',
-            height: '32px',
-            borderRadius: '8px',
-            backgroundColor: 'rgba(56, 189, 248, 0.15)',
+            width: '34px',
+            height: '34px',
+            borderRadius: '10px',
+            backgroundColor: 'var(--accent-mint-light)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            color: '#38BDF8',
-            border: '1px solid rgba(56, 189, 248, 0.3)'
+            color: 'var(--accent-primary)',
+            border: '1.5px solid var(--accent-mint-border)'
           }}>
             <Bot size={18} />
           </div>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <span style={{ fontSize: '13px', fontWeight: 700, color: '#F8FAFC' }}>
+              <span style={{ fontSize: '13.5px', fontWeight: 700, color: 'var(--text-primary)' }}>
                 ShieldPay Security Copilot
               </span>
               <span style={{
-                fontSize: '9px',
+                fontSize: '9.5px',
                 fontWeight: 800,
-                padding: '2px 5px',
+                padding: '2px 6px',
                 borderRadius: '4px',
-                backgroundColor: '#0369A1',
-                color: '#E0F2FE'
+                backgroundColor: 'var(--accent-mint-light)',
+                color: 'var(--accent-primary)',
+                border: '1px solid var(--accent-mint-border)'
               }}>
                 Gemini 3.5
               </span>
             </div>
-            <span style={{ fontSize: '11px', color: '#94A3B8' }}>
+            <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
               Active Protection & Threat Explainer
             </span>
           </div>
@@ -300,10 +303,22 @@ export function AiSecurityAssistant({
             style={{
               background: 'none',
               border: 'none',
-              color: '#94A3B8',
+              color: 'var(--text-secondary)',
               cursor: 'pointer',
-              padding: '4px',
-              borderRadius: '4px'
+              padding: '6px',
+              borderRadius: '6px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'all 0.15s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = 'var(--text-primary)';
+              e.currentTarget.style.backgroundColor = 'var(--bg-secondary)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = 'var(--text-secondary)';
+              e.currentTarget.style.backgroundColor = 'transparent';
             }}
           >
             <Trash2 size={15} />
@@ -316,10 +331,22 @@ export function AiSecurityAssistant({
               style={{
                 background: 'none',
                 border: 'none',
-                color: '#94A3B8',
+                color: 'var(--text-secondary)',
                 cursor: 'pointer',
-                padding: '4px',
-                borderRadius: '4px'
+                padding: '6px',
+                borderRadius: '6px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'all 0.15s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = 'var(--text-primary)';
+                e.currentTarget.style.backgroundColor = 'var(--bg-secondary)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = 'var(--text-secondary)';
+                e.currentTarget.style.backgroundColor = 'transparent';
               }}
             >
               {isMinimized ? <Maximize2 size={15} /> : <Minimize2 size={15} />}
@@ -333,10 +360,22 @@ export function AiSecurityAssistant({
               style={{
                 background: 'none',
                 border: 'none',
-                color: '#94A3B8',
+                color: 'var(--text-secondary)',
                 cursor: 'pointer',
-                padding: '4px',
-                borderRadius: '4px'
+                padding: '6px',
+                borderRadius: '6px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'all 0.15s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = 'var(--text-primary)';
+                e.currentTarget.style.backgroundColor = 'var(--bg-secondary)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = 'var(--text-secondary)';
+                e.currentTarget.style.backgroundColor = 'transparent';
               }}
             >
               <X size={16} />
@@ -351,17 +390,17 @@ export function AiSecurityAssistant({
           {/* Active Threat Context Banner (if available) */}
           {activeContext && activeContext.url && (
             <div style={{
-              padding: '8px 12px',
-              backgroundColor: '#FEF3C7',
-              borderBottom: '1px solid #FDE68A',
+              padding: '8px 14px',
+              backgroundColor: 'var(--color-warning-soft)',
+              borderBottom: '1px solid var(--color-warning-border)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              fontSize: '11px'
+              fontSize: '11.5px'
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px', overflow: 'hidden' }}>
-                <AlertTriangle size={14} style={{ color: '#D97706', flexShrink: 0 }} />
-                <span style={{ color: '#92400E', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                <AlertTriangle size={14} style={{ color: 'var(--color-warning-text)', flexShrink: 0 }} />
+                <span style={{ color: 'var(--color-warning-text)', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                   Context: <strong>{activeContext.url}</strong> (Score: {activeContext.risk_score}/100)
                 </span>
               </div>
@@ -370,7 +409,7 @@ export function AiSecurityAssistant({
                 style={{
                   background: 'none',
                   border: 'none',
-                  color: '#B45309',
+                  color: 'var(--color-warning-text)',
                   cursor: 'pointer',
                   fontWeight: 700,
                   fontSize: '11px',
@@ -386,11 +425,11 @@ export function AiSecurityAssistant({
           <div style={{
             flex: 1,
             overflowY: 'auto',
-            padding: '16px',
+            padding: '18px 20px',
             display: 'flex',
             flexDirection: 'column',
-            gap: '12px',
-            backgroundColor: '#F8FAFC'
+            gap: '14px',
+            backgroundColor: 'var(--bg-primary)'
           }}>
             {messages.map((m) => {
               const isUser = m.role === 'user';
@@ -406,16 +445,16 @@ export function AiSecurityAssistant({
                   }}
                 >
                   <div style={{
-                    padding: '10px 14px',
-                    borderRadius: isUser ? '14px 14px 2px 14px' : '14px 14px 14px 2px',
-                    backgroundColor: isUser ? '#0C7A53' : '#FFFFFF',
-                    color: isUser ? '#FFFFFF' : '#1E293B',
-                    boxShadow: '0 2px 6px rgba(0,0,0,0.04)',
-                    border: isUser ? 'none' : '1px solid #E2E8F0',
+                    padding: '12px 16px',
+                    borderRadius: isUser ? '16px 16px 3px 16px' : '16px 16px 16px 3px',
+                    background: isUser ? 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-dark) 100%)' : 'var(--bg-surface)',
+                    color: isUser ? '#FFFFFF' : 'var(--text-primary)',
+                    boxShadow: 'var(--shadow-subtle)',
+                    border: isUser ? 'none' : '1px solid var(--border-light)',
                     wordBreak: 'break-word'
                   }}>
                     {isUser ? (
-                      <p style={{ margin: 0, fontSize: '13px', lineHeight: 1.4 }}>{m.content}</p>
+                      <p style={{ margin: 0, fontSize: '13.5px', lineHeight: 1.5, color: '#FFFFFF' }}>{m.content}</p>
                     ) : (
                       renderFormattedContent(m.content)
                     )}
@@ -426,13 +465,13 @@ export function AiSecurityAssistant({
                     display: 'flex',
                     alignItems: 'center',
                     gap: '6px',
-                    marginTop: '3px',
-                    fontSize: '10px',
-                    color: '#94A3B8'
+                    marginTop: '4px',
+                    fontSize: '10.5px',
+                    color: 'var(--text-secondary)'
                   }}>
                     <span>{m.timestamp}</span>
                     {m.model && (
-                      <span>• {m.is_fallback ? 'Offline Sentinel' : m.model}</span>
+                      <span>| {m.is_fallback ? 'Offline Sentinel' : m.model}</span>
                     )}
                   </div>
                 </div>
@@ -444,16 +483,16 @@ export function AiSecurityAssistant({
                 display: 'flex',
                 alignItems: 'center',
                 gap: '8px',
-                padding: '8px 14px',
-                borderRadius: '12px',
-                backgroundColor: '#FFFFFF',
-                border: '1px solid #E2E8F0',
+                padding: '10px 16px',
+                borderRadius: '14px',
+                backgroundColor: 'var(--bg-surface)',
+                border: '1px solid var(--border-light)',
                 alignSelf: 'flex-start',
                 fontSize: '12px',
-                color: '#64748B'
+                color: 'var(--text-secondary)'
               }}>
-                <RefreshCw size={14} className="animate-spin" style={{ color: 'var(--accent-primary)' }} />
-                <span>AI Security Copilot analyzing context...</span>
+                <RefreshCw size={14} className="animate-spin motion-reduce:animate-none" style={{ color: 'var(--accent-primary)' }} />
+                <span>AI Security Copilot analyzing threat context…</span>
               </div>
             )}
 
@@ -462,11 +501,11 @@ export function AiSecurityAssistant({
 
           {/* Suggestion Chips */}
           <div style={{
-            padding: '8px 12px',
-            backgroundColor: '#FFFFFF',
-            borderTop: '1px solid #E2E8F0',
+            padding: '10px 18px',
+            backgroundColor: 'var(--bg-surface)',
+            borderTop: '1px solid var(--border-light)',
             display: 'flex',
-            gap: '6px',
+            gap: '8px',
             overflowX: 'auto',
             whiteSpace: 'nowrap'
           }}>
@@ -475,15 +514,27 @@ export function AiSecurityAssistant({
                 key={idx}
                 onClick={() => handleSendMessage(chip)}
                 style={{
-                  fontSize: '11px',
+                  fontSize: '11.5px',
                   fontWeight: 600,
-                  padding: '4px 10px',
-                  borderRadius: '12px',
-                  border: '1px solid #CBD5E1',
-                  backgroundColor: '#F8FAFC',
-                  color: '#334155',
+                  padding: '6px 14px',
+                  borderRadius: '9999px',
+                  border: '1px solid var(--border-light)',
+                  backgroundColor: 'var(--bg-secondary)',
+                  color: 'var(--text-primary)',
                   cursor: 'pointer',
-                  flexShrink: 0
+                  flexShrink: 0,
+                  whiteSpace: 'nowrap',
+                  transition: 'all 0.15s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = 'var(--accent-mint-light)';
+                  e.currentTarget.style.borderColor = 'var(--accent-primary)';
+                  e.currentTarget.style.color = 'var(--accent-primary)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'var(--bg-secondary)';
+                  e.currentTarget.style.borderColor = 'var(--border-light)';
+                  e.currentTarget.style.color = 'var(--text-primary)';
                 }}
               >
                 {chip}
@@ -493,54 +544,62 @@ export function AiSecurityAssistant({
 
           {/* Input & Send Bar */}
           <div style={{
-            padding: '12px 14px',
-            backgroundColor: '#FFFFFF',
-            borderTop: '1px solid #E2E8F0'
+            padding: '14px 18px',
+            backgroundColor: 'var(--bg-surface)',
+            borderTop: '1px solid var(--border-light)'
           }}>
             <form
               onSubmit={(e) => {
                 e.preventDefault();
                 handleSendMessage();
               }}
-              style={{ display: 'flex', gap: '8px' }}
+              style={{ display: 'flex', gap: '10px' }}
             >
               <input
                 type="text"
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
-                placeholder="Ask about URLs, phishing, or cooling locks..."
+                onFocus={() => setIsInputFocused(true)}
+                onBlur={() => setIsInputFocused(false)}
+                placeholder="Ask about URLs, phishing, or cooling locks…"
                 disabled={loading}
                 style={{
                   flex: 1,
-                  padding: '10px 14px',
-                  borderRadius: '10px',
-                  border: '1.5px solid #CBD5E1',
+                  padding: '11px 16px',
+                  borderRadius: '12px',
+                  border: isInputFocused ? '1.5px solid var(--accent-primary)' : '1.5px solid var(--border-light)',
+                  boxShadow: isInputFocused ? '0 0 0 3px var(--accent-glow)' : 'none',
                   fontSize: '13px',
                   outline: 'none',
-                  backgroundColor: '#F8FAFC'
+                  backgroundColor: 'var(--bg-secondary)',
+                  color: 'var(--text-primary)',
+                  fontFamily: 'inherit',
+                  transition: 'all 0.15s ease'
                 }}
               />
               <button
                 type="submit"
                 disabled={loading || !inputValue.trim()}
                 style={{
-                  backgroundColor: '#0C7A53',
+                  background: 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-dark) 100%)',
                   color: '#FFFFFF',
                   border: 'none',
-                  borderRadius: '10px',
-                  padding: '0 16px',
+                  borderRadius: '12px',
+                  padding: '0 20px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   cursor: loading || !inputValue.trim() ? 'not-allowed' : 'pointer',
-                  opacity: loading || !inputValue.trim() ? 0.6 : 1
+                  opacity: loading || !inputValue.trim() ? 0.6 : 1,
+                  boxShadow: '0 2px 10px rgba(16, 185, 129, 0.3)',
+                  transition: 'all 0.15s ease'
                 }}
               >
                 <Send size={15} />
               </button>
             </form>
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '6px', fontSize: '10px', color: '#94A3B8' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '8px', fontSize: '10.5px', color: 'var(--text-secondary)' }}>
               <span>Strict Rule: ShieldPay will never ask for your UPI PIN.</span>
               {onNavigateToScanner && (
                 <button
@@ -549,10 +608,10 @@ export function AiSecurityAssistant({
                   style={{
                     background: 'none',
                     border: 'none',
-                    color: '#0C7A53',
+                    color: 'var(--accent-primary)',
                     fontWeight: 700,
                     cursor: 'pointer',
-                    fontSize: '10px',
+                    fontSize: '10.5px',
                     padding: 0
                   }}
                 >

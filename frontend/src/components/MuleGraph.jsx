@@ -26,12 +26,12 @@ export default function MuleGraph({ graphData = { nodes: [], edges: [] } }) {
   return (
     <div
       style={{
-        background: "#0f172a",
-        padding: "14px",
-        borderRadius: "8px",
-        color: "#f8fafc",
-        border: "1px solid #1e293b",
-        fontFamily: "system-ui, sans-serif",
+        background: "var(--bg-panel-dark)",
+        padding: "16px",
+        borderRadius: "var(--radius-sm)",
+        color: "var(--text-slate-light)",
+        border: "1px solid var(--border-dark)",
+        fontFamily: "var(--font-family)",
       }}
     >
       <div
@@ -45,8 +45,8 @@ export default function MuleGraph({ graphData = { nodes: [], edges: [] } }) {
         <span style={{ fontSize: "14px", fontWeight: "600" }}>
           Live Mule & Fan-In Topology
         </span>
-        <span style={{ fontSize: "11px", color: "#ef4444", fontWeight: "600" }}>
-          ● Red = Rapid Hop (&lt;60s) / Fan-In (4+)
+        <span style={{ fontSize: "11px", color: "var(--accent-red-bright)", fontWeight: "600" }}>
+          ● Flagged: Rapid Hop (&lt;60s) / Fan-In (4+)
         </span>
       </div>
 
@@ -57,14 +57,14 @@ export default function MuleGraph({ graphData = { nodes: [], edges: [] } }) {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            color: "#64748b",
+            color: "var(--text-slate-muted)",
             fontSize: "12px",
           }}
         >
-          Waiting for transaction stream...
+          Waiting for transaction stream…
         </div>
       ) : (
-        <svg width="100%" height={height} viewBox={`0 0 ${width} ${height}`}>
+        <svg aria-hidden="true" width="100%" height={height} viewBox={`0 0 ${width} ${height}`}>
           <defs>
             <marker
               id="arrow-red"
@@ -74,7 +74,7 @@ export default function MuleGraph({ graphData = { nodes: [], edges: [] } }) {
               refY="4"
               orient="auto"
             >
-              <path d="M0,0 L8,4 L0,8 Z" fill="#ef4444" />
+              <path d="M0,0 L8,4 L0,8 Z" fill="var(--accent-red-bright)" />
             </marker>
             <marker
               id="arrow-slate"
@@ -84,7 +84,7 @@ export default function MuleGraph({ graphData = { nodes: [], edges: [] } }) {
               refY="3"
               orient="auto"
             >
-              <path d="M0,0 L6,3 L0,6 Z" fill="#475569" />
+              <path d="M0,0 L6,3 L0,6 Z" fill="var(--border-dark)" />
             </marker>
           </defs>
 
@@ -98,7 +98,7 @@ export default function MuleGraph({ graphData = { nodes: [], edges: [] } }) {
                 y1={s.y}
                 x2={t.x}
                 y2={t.y}
-                stroke={e.is_flagged ? "#ef4444" : "#475569"}
+                stroke={e.is_flagged ? "var(--accent-red-bright)" : "var(--border-dark)"}
                 strokeWidth={e.is_flagged ? 2.5 : 1.2}
                 markerEnd={e.is_flagged ? "url(#arrow-red)" : "url(#arrow-slate)"}
               />
@@ -113,15 +113,15 @@ export default function MuleGraph({ graphData = { nodes: [], edges: [] } }) {
                   cx={x}
                   cy={y}
                   r={is_flagged ? 9 : 6}
-                  fill={is_flagged ? "#ef4444" : "#38bdf8"}
-                  stroke="#0f172a"
+                  fill={is_flagged ? "var(--accent-red-bright)" : "var(--accent-blue)"}
+                  stroke="var(--bg-panel-dark)"
                   strokeWidth="2"
                 />
                 <text
                   x={x}
                   y={y - 12}
                   textAnchor="middle"
-                  fill="#cbd5e1"
+                  fill="var(--text-slate-code)"
                   fontSize="10px"
                 >
                   {String(n.id).split("@")[0]}

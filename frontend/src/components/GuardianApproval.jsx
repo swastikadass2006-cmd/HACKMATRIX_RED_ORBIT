@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Users, AlertTriangle, X } from 'lucide-react';
 
 export default function GuardianApproval({
   txnId,
@@ -43,56 +44,58 @@ export default function GuardianApproval({
     <div style={{
       position: 'fixed',
       inset: 0,
-      backgroundColor: 'rgba(15, 23, 42, 0.6)',
+      backgroundColor: 'var(--bg-overlay)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
       zIndex: 1000,
-      backdropFilter: 'blur(4px)',
-      fontFamily: 'system-ui, sans-serif'
+      fontFamily: 'var(--font-family)'
     }}>
       <div style={{
-        backgroundColor: '#ffffff',
+        backgroundColor: 'var(--bg-surface)',
         borderRadius: '16px',
         padding: '24px',
         maxWidth: '440px',
         width: '90%',
-        boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
+        boxShadow: 'var(--shadow-floating)',
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-          <h3 style={{ margin: 0, fontSize: '17px', fontWeight: 700, color: '#0f172a' }}>
-            👥 Guardian Co-Sign Approval
+          <h3 style={{ margin: 0, fontSize: '17px', fontWeight: 700, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Users size={18} style={{ color: 'var(--accent-primary)' }} />
+            <span>Guardian Co-Sign Approval</span>
           </h3>
           <button
             onClick={onClose}
-            style={{ background: 'none', border: 'none', fontSize: '18px', color: '#94a3b8', cursor: 'pointer' }}
+            aria-label="Close"
+            style={{ background: 'none', border: 'none', padding: 0, color: 'var(--text-secondary)', cursor: 'pointer' }}
           >
-            ✕
+            <X size={18} />
           </button>
         </div>
 
-        <p style={{ margin: '0 0 16px', fontSize: '13px', color: '#64748b' }}>
+        <p style={{ margin: '0 0 16px', fontSize: '13px', color: 'var(--text-secondary)' }}>
           This transfer was flagged for co-signer authorization due to anomalous context (active call or new payee).
         </p>
 
         {errorMsg && (
-          <div style={{ padding: '8px 12px', borderRadius: '8px', backgroundColor: '#fef2f2', border: '1px solid #fecaca', color: '#991b1b', fontSize: '12.5px', marginBottom: '14px' }}>
-            ⚠️ {errorMsg}
+          <div style={{ padding: '8px 12px', borderRadius: '8px', backgroundColor: 'var(--color-danger-bg)', border: '1px solid var(--color-danger-border)', color: 'var(--color-danger)', fontSize: '12.5px', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <AlertTriangle size={14} />
+            <span>{errorMsg}</span>
           </div>
         )}
 
-        <div style={{ backgroundColor: '#f8fafc', padding: '14px', borderRadius: '10px', border: '1px solid #e2e8f0', marginBottom: '18px', fontSize: '13px' }}>
+        <div style={{ backgroundColor: 'var(--bg-secondary)', padding: '14px', borderRadius: '10px', border: '1px solid var(--border-light)', marginBottom: '18px', fontSize: '13px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-            <span style={{ color: '#64748b' }}>Payer:</span>
+            <span style={{ color: 'var(--text-secondary)' }}>Payer:</span>
             <span style={{ fontWeight: 600, fontFamily: 'monospace' }}>{senderVpa}</span>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-            <span style={{ color: '#64748b' }}>Receiver:</span>
+            <span style={{ color: 'var(--text-secondary)' }}>Receiver:</span>
             <span style={{ fontWeight: 600, fontFamily: 'monospace' }}>{receiverVpa}</span>
           </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid #e2e8f0', paddingTop: '6px' }}>
-            <span style={{ color: '#64748b' }}>Transfer Amount:</span>
-            <span style={{ fontWeight: 700, color: '#0c7a53', fontSize: '15px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid var(--border-light)', paddingTop: '6px' }}>
+            <span style={{ color: 'var(--text-secondary)' }}>Transfer Amount:</span>
+            <span style={{ fontWeight: 700, color: 'var(--accent-primary)', fontSize: '15px' }}>
               ₹{parseFloat(amount || 0).toLocaleString('en-IN')}
             </span>
           </div>
@@ -106,8 +109,8 @@ export default function GuardianApproval({
             style={{
               flex: 1,
               padding: '10px',
-              backgroundColor: '#0c7a53',
-              color: '#ffffff',
+              backgroundColor: 'var(--accent-primary)',
+              color: 'var(--text-inverse)',
               border: 'none',
               borderRadius: '8px',
               fontWeight: 700,
@@ -115,7 +118,7 @@ export default function GuardianApproval({
               cursor: loading ? 'not-allowed' : 'pointer',
             }}
           >
-            {loading ? 'Submitting...' : '✓ Approve'}
+            {loading ? 'Submitting…' : 'Approve'}
           </button>
           <button
             onClick={() => handleDecision(false)}
@@ -123,8 +126,8 @@ export default function GuardianApproval({
             style={{
               flex: 1,
               padding: '10px',
-              backgroundColor: '#dc2626',
-              color: '#ffffff',
+              backgroundColor: 'var(--color-danger)',
+              color: 'var(--text-inverse)',
               border: 'none',
               borderRadius: '8px',
               fontWeight: 700,
@@ -132,7 +135,7 @@ export default function GuardianApproval({
               cursor: loading ? 'not-allowed' : 'pointer',
             }}
           >
-            {loading ? 'Submitting...' : '✕ Reject'}
+            {loading ? 'Submitting…' : 'Reject'}
           </button>
         </div>
       </div>

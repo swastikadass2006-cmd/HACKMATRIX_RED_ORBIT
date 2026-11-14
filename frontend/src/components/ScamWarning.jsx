@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { ShieldCheck, AlertTriangle, Bot, X } from "lucide-react";
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || "";
 
@@ -54,8 +55,9 @@ export default function ScamWarning({ transactionId, onClose }) {
 
   if (!transactionId) {
     return (
-      <div style={{ padding: "14px", backgroundColor: "#f0fdf4", borderRadius: "10px", border: "1px solid #bbf7d0", fontSize: "12px", color: "#166534" }}>
-        <strong>🛡️ AI Scam Coach:</strong> Select or initiate a transaction to view real-time multilingual security advice.
+      <div style={{ padding: "14px", backgroundColor: "var(--accent-mint-light)", borderRadius: "10px", border: "1px solid var(--accent-mint-border)", fontSize: "12px", color: "var(--accent-primary)", display: "flex", alignItems: "center", gap: "8px" }}>
+        <ShieldCheck size={16} />
+        <span><strong>AI Scam Coach:</strong> Select or initiate a transaction to view real-time multilingual security advice.</span>
       </div>
     );
   }
@@ -64,11 +66,11 @@ export default function ScamWarning({ transactionId, onClose }) {
     <div style={{
       padding: "16px",
       borderRadius: "12px",
-      backgroundColor: "#fffbeb",
-      border: "1px solid #fde68a",
-      boxShadow: "0 2px 10px rgba(245, 158, 11, 0.08)",
+      backgroundColor: "var(--color-warning-soft)",
+      border: "1px solid var(--color-warning-border)",
+      boxShadow: "var(--shadow-subtle)",
       margin: "12px 0",
-      fontFamily: "system-ui, sans-serif"
+      fontFamily: "var(--font-family)"
     }}>
       {/* Track 2 Badge */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
@@ -79,11 +81,11 @@ export default function ScamWarning({ transactionId, onClose }) {
           letterSpacing: "0.06em",
           padding: "3px 8px",
           borderRadius: "6px",
-          backgroundColor: "#fef3c7",
-          color: "#92400e",
-          border: "1px solid #fcd34d"
+          backgroundColor: "var(--color-warning-bg)",
+          color: "var(--color-warning)",
+          border: "1px solid var(--color-warning-border)"
         }}>
-          Track 2: Financial Inclusion • Gemini AI Scam Coach
+          Track 2: Financial Inclusion | Gemini AI Scam Coach
         </span>
 
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
@@ -93,11 +95,11 @@ export default function ScamWarning({ transactionId, onClose }) {
             style={{
               padding: "4px 8px",
               borderRadius: "6px",
-              border: "1px solid #d97706",
-              backgroundColor: "#ffffff",
+              border: "1px solid var(--color-warning)",
+              backgroundColor: "var(--bg-surface)",
               fontSize: "11px",
               fontWeight: 600,
-              color: "#92400e",
+              color: "var(--color-warning)",
               cursor: "pointer"
             }}
           >
@@ -108,41 +110,44 @@ export default function ScamWarning({ transactionId, onClose }) {
           {onClose && (
             <button
               onClick={onClose}
-              style={{ background: "none", border: "none", color: "#92400e", cursor: "pointer", fontSize: "14px", fontWeight: "bold" }}
+              aria-label="Close"
+              style={{ background: "none", border: "none", color: "var(--color-warning)", cursor: "pointer", padding: 0 }}
             >
-              ✕
+              <X size={16} />
             </button>
           )}
         </div>
       </div>
 
       {loading && (
-        <div style={{ fontSize: "12px", color: "#b45309", padding: "10px 0" }}>
-          🤖 Generating localized safety explanation via Gemini API...
+        <div style={{ fontSize: "12px", color: "var(--color-warning)", padding: "10px 0", display: "flex", alignItems: "center", gap: "6px" }}>
+          <Bot size={14} />
+          <span>Generating localized safety explanation via Gemini API…</span>
         </div>
       )}
 
       {error && (
-        <div style={{ fontSize: "12px", color: "#dc2626", padding: "6px 0" }}>
-          ⚠️ Notice: {error}
+        <div style={{ fontSize: "12px", color: "var(--color-danger)", padding: "6px 0", display: "flex", alignItems: "center", gap: "6px" }}>
+          <AlertTriangle size={14} />
+          <span>Notice: {error}</span>
         </div>
       )}
 
       {warning && (
         <div>
-          <h4 style={{ margin: "0 0 6px 0", fontSize: "14px", fontWeight: 700, color: "#92400e" }}>
+          <h4 style={{ margin: "0 0 6px 0", fontSize: "14px", fontWeight: 700, color: "var(--color-warning)" }}>
             {warning.headline || "Suspicious Activity Detected"}
           </h4>
-          <p style={{ margin: "0 0 10px 0", fontSize: "12.5px", color: "#78350f", lineHeight: "1.5" }}>
+          <p style={{ margin: "0 0 10px 0", fontSize: "12.5px", color: "var(--text-primary)", lineHeight: "1.5" }}>
             {warning.message}
           </p>
 
           {warning.do_this_now && warning.do_this_now.length > 0 && (
-            <div style={{ backgroundColor: "#ffffff", padding: "10px 12px", borderRadius: "8px", border: "1px solid #fef08a" }}>
-              <strong style={{ fontSize: "11.5px", color: "#92400e", textTransform: "uppercase", letterSpacing: "0.04em", display: "block", marginBottom: "4px" }}>
+            <div style={{ backgroundColor: "var(--bg-surface)", padding: "10px 12px", borderRadius: "8px", border: "1px solid var(--border-light)" }}>
+              <strong style={{ fontSize: "11.5px", color: "var(--color-warning)", textTransform: "uppercase", letterSpacing: "0.04em", display: "block", marginBottom: "4px" }}>
                 Immediate Safety Steps:
               </strong>
-              <ul style={{ margin: 0, paddingLeft: "18px", fontSize: "12px", color: "#451a03", display: "flex", flexDirection: "column", gap: "4px" }}>
+              <ul style={{ margin: 0, paddingLeft: "18px", fontSize: "12px", color: "var(--text-secondary)", display: "flex", flexDirection: "column", gap: "4px" }}>
                 {warning.do_this_now.map((action, index) => (
                   <li key={index}>{action}</li>
                 ))}
@@ -150,7 +155,7 @@ export default function ScamWarning({ transactionId, onClose }) {
             </div>
           )}
 
-          <div style={{ marginTop: "8px", fontSize: "10.5px", color: "#a16207", display: "flex", justifyContent: "space-between" }}>
+          <div style={{ marginTop: "8px", fontSize: "10.5px", color: "var(--text-muted)", display: "flex", justifyContent: "space-between" }}>
             <span>Localized Language: {warning.language?.toUpperCase() || language.toUpperCase()}</span>
             <span>Zero PIN / OTP Disclosure Guaranteed</span>
           </div>

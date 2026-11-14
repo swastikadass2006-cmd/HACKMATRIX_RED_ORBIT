@@ -16,28 +16,25 @@ export function LiveTransactions({ transactions = [], onSelectTransaction, onVie
   });
 
   const getBrandAvatar = (item) => {
-    const name = item.payee || item.payer || 'UPI';
-    if (name.includes('dribbble')) return { bg: '#FDECEE', color: '#EA4C89', char: '🏀' };
-    if (name.includes('google') || name.includes('okaxis')) return { bg: '#EAF8F2', color: '#108053', char: 'G' };
-    if (name.includes('amazon') || name.includes('ybl')) return { bg: '#FEF4E6', color: '#FF9900', char: 'a' };
-    return { bg: '#E5F7EC', color: '#0C7A53', char: '₹' };
+    const name = (item.payee || item.payer || 'UPI').toLowerCase();
+    if (name.includes('dribbble')) return { bg: 'var(--color-danger-bg)', color: 'var(--color-danger)', char: 'D' };
+    if (name.includes('google') || name.includes('okaxis')) return { bg: 'var(--accent-mint-light)', color: 'var(--accent-primary)', char: 'G' };
+    if (name.includes('amazon') || name.includes('ybl')) return { bg: 'var(--color-warning-bg)', color: 'var(--color-warning)', char: 'A' };
+    return { bg: 'var(--accent-mint-light)', color: 'var(--accent-primary)', char: '₹' };
   };
 
   const formatAmountINR = (val) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      maximumFractionDigits: 2
-    }).format(val || 0);
+    const num = Number(val) || 0;
+    return `$${num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
 
   return (
     <div className="quixotic-card">
-      {/* Header */}
+      {/* Header matching Image 2 */}
       <div className="card-header-quixotic">
         <div className="card-title-block">
           <span className="card-main-title">Payment History</span>
-          <span className="card-sub-title">Recent UPI payments history</span>
+          <span className="card-sub-title">Recent payments history</span>
         </div>
         <button 
           className="card-corner-arrow-btn" 
@@ -48,13 +45,13 @@ export function LiveTransactions({ transactions = [], onSelectTransaction, onVie
         </button>
       </div>
 
-      {/* Filter / Search mini bar */}
+      {/* Filter / Search mini bar matching Image 2 */}
       <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
         <div style={{ position: 'relative', flex: 1 }}>
           <Search size={13} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
           <input
             type="text"
-            placeholder="Search by UPI ID / Txn..."
+            placeholder="Search payments…"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             style={{
@@ -66,6 +63,7 @@ export function LiveTransactions({ transactions = [], onSelectTransaction, onVie
               borderRadius: '9999px',
               border: '1px solid var(--border-light)',
               backgroundColor: 'var(--bg-secondary)',
+              color: 'var(--text-primary)',
               outline: 'none'
             }}
           />
@@ -75,20 +73,20 @@ export function LiveTransactions({ transactions = [], onSelectTransaction, onVie
           onChange={(e) => setStatusFilter(e.target.value)}
           style={{
             height: '30px',
-            fontSize: '11px',
+            fontSize: '11.5px',
             borderRadius: '9999px',
             border: '1px solid var(--border-light)',
             backgroundColor: 'var(--bg-secondary)',
-            padding: '0 8px',
-            fontWeight: 600,
             color: 'var(--text-secondary)',
+            padding: '0 8px',
+            outline: 'none',
             cursor: 'pointer'
           }}
         >
           <option value="all">All Status</option>
-          <option value="Approved">Approved</option>
+          <option value="Approved">Successful</option>
           <option value="Blocked">Blocked</option>
-          <option value="Step-up">Step-up</option>
+          <option value="Step-up">Step-Up</option>
         </select>
       </div>
 

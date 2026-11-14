@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { KeyRound, AlertTriangle, X } from 'lucide-react';
 
 export default function StepUpModal({ 
   txnId, 
@@ -48,41 +49,43 @@ export default function StepUpModal({
     <div style={{
       position: 'fixed',
       inset: 0,
-      backgroundColor: 'rgba(15, 23, 42, 0.6)',
+      backgroundColor: 'var(--bg-overlay)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
       zIndex: 1000,
-      backdropFilter: 'blur(4px)',
-      fontFamily: 'system-ui, sans-serif'
+      fontFamily: 'var(--font-family)'
     }}>
       <div style={{
-        backgroundColor: '#ffffff',
+        backgroundColor: 'var(--bg-surface)',
         borderRadius: '16px',
         padding: '24px',
         maxWidth: '400px',
         width: '90%',
-        boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
+        boxShadow: 'var(--shadow-floating)',
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-          <h3 style={{ margin: 0, fontSize: '17px', fontWeight: 700, color: '#0f172a' }}>
-            🔐 Step-Up Verification
+          <h3 style={{ margin: 0, fontSize: '17px', fontWeight: 700, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <KeyRound size={18} style={{ color: 'var(--accent-primary)' }} />
+            <span>Step-Up Verification</span>
           </h3>
           <button
             onClick={onClose}
-            style={{ background: 'none', border: 'none', fontSize: '18px', color: '#94a3b8', cursor: 'pointer' }}
+            aria-label="Close"
+            style={{ background: 'none', border: 'none', padding: 0, color: 'var(--text-secondary)', cursor: 'pointer' }}
           >
-            ✕
+            <X size={18} />
           </button>
         </div>
 
-        <p style={{ margin: '0 0 16px', fontSize: '13px', color: '#64748b' }}>
+        <p style={{ margin: '0 0 16px', fontSize: '13px', color: 'var(--text-secondary)' }}>
           This payment scored within the step-up range. Enter the 6-digit OTP to authorize settlement.
         </p>
 
         {errorMsg && (
-          <div style={{ padding: '8px 12px', borderRadius: '8px', backgroundColor: '#fef2f2', border: '1px solid #fecaca', color: '#991b1b', fontSize: '12.5px', marginBottom: '14px' }}>
-            ⚠️ {errorMsg}
+          <div style={{ padding: '8px 12px', borderRadius: '8px', backgroundColor: 'var(--color-danger-bg)', border: '1px solid var(--color-danger-border)', color: 'var(--color-danger)', fontSize: '12.5px', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <AlertTriangle size={14} />
+            <span>{errorMsg}</span>
           </div>
         )}
 
@@ -102,10 +105,11 @@ export default function StepUpModal({
                 letterSpacing: '0.3em',
                 textAlign: 'center',
                 borderRadius: '8px',
-                border: '1px solid #cbd5e1',
+                border: '1px solid var(--border-light)',
                 boxSizing: 'border-box',
                 fontWeight: 700,
-                color: '#0f172a',
+                color: 'var(--text-primary)',
+                backgroundColor: 'var(--bg-secondary)',
                 outline: 'none'
               }}
             />
@@ -118,8 +122,8 @@ export default function StepUpModal({
               style={{
                 flex: 1,
                 padding: '10px',
-                backgroundColor: otp.length === 6 ? '#0c7a53' : '#94a3b8',
-                color: '#ffffff',
+                backgroundColor: otp.length === 6 ? 'var(--accent-primary)' : 'var(--text-muted)',
+                color: 'var(--text-inverse)',
                 border: 'none',
                 borderRadius: '8px',
                 fontWeight: 700,
@@ -127,16 +131,16 @@ export default function StepUpModal({
                 cursor: otp.length === 6 && !loading ? 'pointer' : 'not-allowed',
               }}
             >
-              {loading ? 'Verifying...' : 'Submit OTP'}
+              {loading ? 'Verifying…' : 'Submit OTP'}
             </button>
             <button
               type="button"
               onClick={onClose}
               style={{
                 padding: '10px 16px',
-                backgroundColor: '#f1f5f9',
-                color: '#475569',
-                border: '1px solid #cbd5e1',
+                backgroundColor: 'var(--bg-secondary)',
+                color: 'var(--text-secondary)',
+                border: '1px solid var(--border-light)',
                 borderRadius: '8px',
                 fontSize: '13px',
                 fontWeight: 600,

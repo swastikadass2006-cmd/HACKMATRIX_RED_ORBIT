@@ -34,7 +34,7 @@ export function ContextualEmptyState({
           width: '38px',
           height: '38px',
           borderRadius: '50%',
-          backgroundColor: '#FFFFFF',
+          backgroundColor: 'var(--bg-surface)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',

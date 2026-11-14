@@ -33,21 +33,21 @@ export function TransactionDrawer({ transaction, onClose, onScanThreat, onConsul
 
         {/* Hackathon Focus Criteria Badges */}
         <div style={{ padding: '0 20px 10px 20px', display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-          <span style={{ fontSize: '10px', fontWeight: 800, padding: '3px 8px', borderRadius: '6px', backgroundColor: '#eff6ff', color: '#1d4ed8', border: '1px solid #bfdbfe' }}>
+          <span style={{ fontSize: '10px', fontWeight: 800, padding: '3px 8px', borderRadius: '6px', backgroundColor: 'var(--color-info-bg)', color: 'var(--accent-primary)', border: '1px solid var(--border-light)' }}>
             Track 1: UPI Rails (HMAC + Ledger)
           </span>
-          <span style={{ fontSize: '10px', fontWeight: 800, padding: '3px 8px', borderRadius: '6px', backgroundColor: '#fdf4ff', color: '#a21caf', border: '1px solid #f5d0fe' }}>
+          <span style={{ fontSize: '10px', fontWeight: 800, padding: '3px 8px', borderRadius: '6px', backgroundColor: 'var(--color-purple-bg)', color: 'var(--accent-dark)', border: '1px solid var(--border-light)' }}>
             Track 4: Risk Scoring (&lt;0.4ms)
           </span>
-          <span style={{ fontSize: '10px', fontWeight: 800, padding: '3px 8px', borderRadius: '6px', backgroundColor: '#fff1f2', color: '#be123c', border: '1px solid #fecdd3' }}>
+          <span style={{ fontSize: '10px', fontWeight: 800, padding: '3px 8px', borderRadius: '6px', backgroundColor: 'var(--color-danger-bg)', color: 'var(--color-danger)', border: '1px solid var(--color-danger-border)' }}>
             Track 5: Fraud Mitigation Intercept
           </span>
           {(isHighRisk || isMedRisk || isCooling) ? (
-            <span style={{ fontSize: '10px', fontWeight: 800, padding: '3px 8px', borderRadius: '6px', backgroundColor: '#fef3c7', color: '#92400e', border: '1px solid #fde68a' }}>
+            <span style={{ fontSize: '10px', fontWeight: 800, padding: '3px 8px', borderRadius: '6px', backgroundColor: 'var(--color-warning-bg)', color: 'var(--color-warning)', border: '1px solid var(--color-warning-border)' }}>
               Track 2: Financial Inclusion Guardian Active
             </span>
           ) : (
-            <span style={{ fontSize: '10px', fontWeight: 800, padding: '3px 8px', borderRadius: '6px', backgroundColor: '#f0fdf4', color: '#15803d', border: '1px solid #bbf7d0' }}>
+            <span style={{ fontSize: '10px', fontWeight: 800, padding: '3px 8px', borderRadius: '6px', backgroundColor: 'var(--accent-mint-light)', color: 'var(--accent-primary)', border: '1px solid var(--color-success-border)' }}>
               Track 3: PFM: Transaction Baseline Secured
             </span>
           )}
@@ -72,7 +72,7 @@ export function TransactionDrawer({ transaction, onClose, onScanThreat, onConsul
             <div className="drawer-info-row">
               <span className="drawer-info-label">Transfer Amount</span>
               <span className="tabular-nums" style={{ fontSize: '22px', fontWeight: 700, color: 'var(--text-primary)' }}>
-                {transaction.amountFormatted || `₹${transaction.amount?.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`}
+                {transaction.amountFormatted || `₹ ${transaction.amount?.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
               </span>
             </div>
 
@@ -86,7 +86,7 @@ export function TransactionDrawer({ transaction, onClose, onScanThreat, onConsul
             <div className="drawer-info-row">
               <span className="drawer-info-label">Risk Score</span>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <div style={{ width: '80px', height: '7px', backgroundColor: '#D2EADB', borderRadius: '4px', overflow: 'hidden' }}>
+                <div style={{ width: '80px', height: '7px', backgroundColor: 'var(--accent-mint-bar)', borderRadius: '4px', overflow: 'hidden' }}>
                   <div
                     style={{
                       height: '100%',
@@ -122,7 +122,7 @@ export function TransactionDrawer({ transaction, onClose, onScanThreat, onConsul
           </div>
 
           {/* Reasons */}
-          <div className="drawer-info-card" style={{ borderColor: isHighRisk ? '#FBDCE0' : '#E7ECE8' }}>
+          <div className="drawer-info-card" style={{ borderColor: isHighRisk ? 'var(--color-danger-border)' : 'var(--border-light)' }}>
             <h4 style={{ fontSize: '13px', fontWeight: 700, color: isHighRisk ? 'var(--color-danger)' : 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
               {isHighRisk ? <ShieldAlert size={15} /> : isMedRisk ? <AlertTriangle size={15} /> : <CheckCircle2 size={15} />}
               Decision Explanations
@@ -187,9 +187,9 @@ export function TransactionDrawer({ transaction, onClose, onScanThreat, onConsul
                 className="pill-action-btn"
                 style={{
                   flex: 1,
-                  padding: '9px 12px',
-                  backgroundColor: '#0C7A53',
-                  color: '#FFFFFF',
+                  padding: '8px 12px',
+                  backgroundColor: 'var(--accent-primary)',
+                  color: 'var(--text-inverse)',
                   borderRadius: '10px',
                   fontSize: '11px',
                   fontWeight: 700,
@@ -219,10 +219,10 @@ export function TransactionDrawer({ transaction, onClose, onScanThreat, onConsul
                 className="pill-action-btn"
                 style={{
                   flex: 1,
-                  padding: '9px 12px',
-                  backgroundColor: '#0F172A',
-                  color: '#38BDF8',
-                  border: '1px solid #38BDF8',
+                  padding: '8px 12px',
+                  backgroundColor: 'var(--bg-panel-dark)',
+                  color: 'var(--accent-blue)',
+                  border: '1px solid var(--accent-blue)',
                   borderRadius: '10px',
                   fontSize: '11px',
                   fontWeight: 700,

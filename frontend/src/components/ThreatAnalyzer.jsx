@@ -18,7 +18,8 @@ import {
   AlertCircle,
   Lock,
   Copy,
-  Check
+  Check,
+  X
 } from 'lucide-react';
 import { analyzeThreat, analyzeThreatMessage, fetchRecentScans, commitThreatReport } from '../api/client';
 
@@ -430,33 +431,93 @@ export function ThreatAnalyzer({ onBackToDashboard, onConsultCopilot, initialUrl
           {/* Left Column: URL Input & Live Recent Scans */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             
-            <div className="quixotic-card" style={{ padding: '20px' }}>
-              <div style={{ marginBottom: '14px' }}>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '6px' }}>
-                  Target URL, FQDN, or IP
-                </label>
-                <div style={{ position: 'relative' }}>
+            <div className="quixotic-card" style={{ padding: '22px' }}>
+              <div style={{ marginBottom: '16px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                  <label style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)' }}>
+                    Target URL or UPI Web Redirection
+                  </label>
+                  <span style={{ fontSize: '11px', color: 'var(--accent-primary)', fontWeight: 600 }}>
+                    26-Feature Lexical + XGBoost
+                  </span>
+                </div>
+                <div 
+                  style={{ 
+                    position: 'relative',
+                    display: 'flex',
+                    alignItems: 'center',
+                    borderRadius: '12px',
+                    backgroundColor: 'var(--bg-secondary)',
+                    border: '1.5px solid var(--border-light)',
+                    transition: 'border-color 0.15s ease, box-shadow 0.15s ease'
+                  }}
+                >
+                  <Search 
+                    size={16} 
+                    style={{ 
+                      position: 'absolute', 
+                      left: '14px', 
+                      color: 'var(--text-secondary)',
+                      pointerEvents: 'none'
+                    }} 
+                  />
                   <input
                     type="text"
                     value={url}
                     onChange={(e) => setUrl(e.target.value)}
-                    placeholder="Enter target URL, FQDN, or IP..."
+                    placeholder="https://suspicious-upi-portal.xyz/login"
                     style={{
                       width: '100%',
-                      padding: '12px 14px 12px 38px',
+                      padding: '13px 40px 13px 42px',
                       borderRadius: '12px',
-                      border: '1.5px solid var(--border-card)',
+                      border: 'none',
                       fontSize: '13px',
                       outline: 'none',
-                      backgroundColor: '#FAFCFA',
-                      fontFamily: 'monospace',
+                      backgroundColor: 'transparent',
+                      color: 'var(--text-primary)',
+                      fontFamily: 'Consolas, Monaco, monospace',
                       boxSizing: 'border-box'
+                    }}
+                    onFocus={(e) => {
+                      if (e.currentTarget.parentElement) {
+                        e.currentTarget.parentElement.style.borderColor = 'var(--accent-primary)';
+                        e.currentTarget.parentElement.style.boxShadow = '0 0 0 3px var(--accent-glow)';
+                      }
+                    }}
+                    onBlur={(e) => {
+                      if (e.currentTarget.parentElement) {
+                        e.currentTarget.parentElement.style.borderColor = 'var(--border-light)';
+                        e.currentTarget.parentElement.style.boxShadow = 'none';
+                      }
                     }}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') handleAnalyzeUrl();
                     }}
                   />
-                  <Search size={16} style={{ position: 'absolute', left: '12px', top: '14px', color: 'var(--text-secondary)' }} />
+                  {url && (
+                    <button
+                      type="button"
+                      onClick={() => setUrl('')}
+                      title="Clear input"
+                      style={{
+                        position: 'absolute',
+                        right: '12px',
+                        background: 'none',
+                        border: 'none',
+                        color: 'var(--text-secondary)',
+                        cursor: 'pointer',
+                        padding: '4px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        borderRadius: '50%'
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.color = 'var(--text-primary)'}
+                      onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-secondary)'}
+                    >
+                      <X size={14} />
+                    </button>
+                  )}
                 </div>
               </div>
 
@@ -473,7 +534,7 @@ export function ThreatAnalyzer({ onBackToDashboard, onConsultCopilot, initialUrl
                     fontWeight: 600,
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '4px',
+                    gap: '6px',
                     cursor: 'pointer',
                     padding: 0
                   }}
@@ -491,12 +552,14 @@ export function ThreatAnalyzer({ onBackToDashboard, onConsultCopilot, initialUrl
                     style={{
                       width: '100%',
                       marginTop: '8px',
-                      padding: '10px',
-                      borderRadius: '8px',
-                      border: '1.5px solid var(--border-card)',
+                      padding: '12px',
+                      borderRadius: '10px',
+                      border: '1.5px solid var(--border-light)',
                       fontSize: '12px',
-                      fontFamily: 'monospace',
-                      backgroundColor: '#FAFCFA',
+                      fontFamily: 'Consolas, Monaco, monospace',
+                      backgroundColor: 'var(--bg-secondary)',
+                      color: 'var(--text-primary)',
+                      outline: 'none',
                       boxSizing: 'border-box'
                     }}
                   />
@@ -507,18 +570,37 @@ export function ThreatAnalyzer({ onBackToDashboard, onConsultCopilot, initialUrl
               <button
                 onClick={() => handleAnalyzeUrl()}
                 disabled={urlLoading}
-                className="pill-action-btn"
+                type="button"
                 style={{
                   width: '100%',
-                  padding: '12px',
+                  padding: '13px 20px',
+                  whiteSpace: 'nowrap',
+                  display: 'flex',
+                  alignItems: 'center',
                   justifyContent: 'center',
-                  backgroundColor: 'var(--accent-primary)',
+                  gap: '8px',
+                  background: 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-dark) 100%)',
                   color: '#FFFFFF',
+                  border: '1px solid var(--accent-primary)',
                   borderRadius: '12px',
                   fontWeight: 700,
                   fontSize: '14px',
                   cursor: urlLoading ? 'not-allowed' : 'pointer',
-                  opacity: urlLoading ? 0.7 : 1
+                  opacity: urlLoading ? 0.75 : 1,
+                  boxShadow: '0 4px 14px rgba(16, 185, 129, 0.35)',
+                  transition: 'all 0.15s ease'
+                }}
+                onMouseEnter={(e) => {
+                  if (!urlLoading) {
+                    e.currentTarget.style.filter = 'brightness(1.08)';
+                    e.currentTarget.style.transform = 'translateY(-1px)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!urlLoading) {
+                    e.currentTarget.style.filter = 'none';
+                    e.currentTarget.style.transform = 'translateY(0)';
+                  }
                 }}
               >
                 {urlLoading ? (
@@ -972,13 +1054,14 @@ export function ThreatAnalyzer({ onBackToDashboard, onConsultCopilot, initialUrl
                 placeholder="Paste suspicious SMS, WhatsApp message, or email body to evaluate phishing lure..."
                 style={{
                   width: '100%',
-                  padding: '12px',
+                  padding: '14px',
                   borderRadius: '12px',
-                  border: '1.5px solid var(--border-card)',
+                  border: '1.5px solid var(--border-light)',
                   fontSize: '13px',
                   outline: 'none',
-                  backgroundColor: '#FAFCFA',
-                  fontFamily: 'system-ui, sans-serif',
+                  backgroundColor: 'var(--bg-secondary)',
+                  color: 'var(--text-primary)',
+                  fontFamily: 'Consolas, Monaco, monospace',
                   boxSizing: 'border-box',
                   resize: 'vertical'
                 }}
@@ -987,19 +1070,26 @@ export function ThreatAnalyzer({ onBackToDashboard, onConsultCopilot, initialUrl
               <button
                 onClick={handleAnalyzeMessage}
                 disabled={msgLoading}
-                className="pill-action-btn"
+                type="button"
                 style={{
                   width: '100%',
                   marginTop: '12px',
-                  padding: '12px',
+                  padding: '13px 20px',
+                  whiteSpace: 'nowrap',
+                  display: 'flex',
+                  alignItems: 'center',
                   justifyContent: 'center',
-                  backgroundColor: 'var(--accent-primary)',
+                  gap: '8px',
+                  background: 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-dark) 100%)',
                   color: '#FFFFFF',
+                  border: '1px solid var(--accent-primary)',
                   borderRadius: '12px',
                   fontWeight: 700,
                   fontSize: '14px',
                   cursor: msgLoading ? 'not-allowed' : 'pointer',
-                  opacity: msgLoading ? 0.7 : 1
+                  opacity: msgLoading ? 0.75 : 1,
+                  boxShadow: '0 4px 14px rgba(16, 185, 129, 0.35)',
+                  transition: 'all 0.15s ease'
                 }}
               >
                 {msgLoading ? (

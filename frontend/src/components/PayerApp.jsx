@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import StepUpModal from './StepUpModal';
 import GuardianApproval from './GuardianApproval';
 import ScamWarning from './ScamWarning';
+import { Shield, ShieldCheck, AlertTriangle, Clock, Ban, CheckCircle2 } from 'lucide-react';
 
 // -----------------------------------------------------------------------
 // 1. Web Crypto API: HMAC-SHA256 hex digest generator
@@ -243,35 +244,35 @@ export default function PayerApp({ apiBaseUrl = '' }) {
   const txnState = currentTxn?.status || currentTxn?.state || 'IDLE';
 
   return (
-    <div style={{ maxWidth: '640px', margin: '24px auto', padding: '24px', backgroundColor: '#ffffff', borderRadius: '16px', boxShadow: '0 4px 20px rgba(0,0,0,0.06)', fontFamily: 'system-ui, sans-serif' }}>
+    <div style={{ maxWidth: '640px', margin: '24px auto', padding: '24px', backgroundColor: 'var(--bg-surface)', borderRadius: '16px', boxShadow: '0 4px 20px var(--shadow-subtle)', fontFamily: 'var(--font-family)' }}>
       {/* Header & Hackathon Focus Badges */}
-      <div style={{ borderBottom: '1px solid #e2e8f0', paddingBottom: '14px', marginBottom: '18px' }}>
+      <div style={{ borderBottom: '1px solid var(--border-light)', paddingBottom: '14px', marginBottom: '18px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h2 style={{ margin: 0, fontSize: '20px', fontWeight: 700, color: '#0f172a' }}>
-            🛡️ ShieldPay Payer App
+          <h2 style={{ margin: 0, fontSize: '20px', fontWeight: 700, color: 'var(--text-primary)' }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Shield size={20} style={{ color: 'var(--accent-primary)' }} /><span>ShieldPay Payer App</span></span>
           </h2>
-          <span style={{ fontSize: '11px', fontWeight: 700, color: '#0c7a53', backgroundColor: '#ecfdf5', padding: '4px 10px', borderRadius: '9999px', border: '1px solid #a7f3d0' }}>
+          <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--accent-primary)', backgroundColor: 'var(--accent-mint-light)', padding: '4px 10px', borderRadius: '9999px', border: '1px solid var(--color-success-border)' }}>
             UPI 2.0 IMPS Rail
           </span>
         </div>
 
         {/* Hackathon Track Criteria Badges */}
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '10px' }}>
-          <span style={{ fontSize: '10.5px', fontWeight: 700, padding: '3px 8px', borderRadius: '6px', backgroundColor: '#eff6ff', color: '#1d4ed8', border: '1px solid #bfdbfe' }}>
-            Track 1: UPI Integration • HMAC-SHA256 • Double-Entry
+          <span style={{ fontSize: '10.5px', fontWeight: 700, padding: '3px 8px', borderRadius: '6px', backgroundColor: 'var(--color-info-bg)', color: 'var(--accent-primary)', border: '1px solid var(--border-light)' }}>
+            Track 1: UPI Integration | HMAC-SHA256 | Double-Entry
           </span>
-          <span style={{ fontSize: '10.5px', fontWeight: 700, padding: '3px 8px', borderRadius: '6px', backgroundColor: '#f5f3ff', color: '#6d28d9', border: '1px solid #ddd6fe' }}>
+          <span style={{ fontSize: '10.5px', fontWeight: 700, padding: '3px 8px', borderRadius: '6px', backgroundColor: 'var(--color-purple-bg)', color: 'var(--accent-dark)', border: '1px solid var(--border-light)' }}>
             Track 2: Financial Inclusion Guardian Active
           </span>
-          <span style={{ fontSize: '10.5px', fontWeight: 700, padding: '3px 8px', borderRadius: '6px', backgroundColor: '#f0fdf4', color: '#15803d', border: '1px solid #bbf7d0' }}>
+          <span style={{ fontSize: '10.5px', fontWeight: 700, padding: '3px 8px', borderRadius: '6px', backgroundColor: 'var(--accent-mint-light)', color: 'var(--color-success)', border: '1px solid var(--color-success-border)' }}>
             Track 3: PFM: Transaction Baseline Secured
           </span>
         </div>
       </div>
 
       {errorMsg && (
-        <div style={{ padding: '10px 14px', borderRadius: '8px', backgroundColor: '#fef2f2', border: '1px solid #fecaca', color: '#991b1b', fontSize: '13px', marginBottom: '16px' }}>
-          ⚠️ {errorMsg}
+        <div style={{ padding: '10px 14px', borderRadius: '8px', backgroundColor: 'var(--color-danger-bg)', border: '1px solid var(--color-danger-border)', color: 'var(--color-danger)', fontSize: '13px', marginBottom: '16px' }}>
+          <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><AlertTriangle size={14} /><span>{errorMsg}</span></span>
         </div>
       )}
 
@@ -279,7 +280,7 @@ export default function PayerApp({ apiBaseUrl = '' }) {
       <form onSubmit={handleInitiatePayment} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
           <div>
-            <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#475569', marginBottom: '4px' }}>
+            <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '4px' }}>
               Sender VPA (Payer)
             </label>
             <input
@@ -287,12 +288,12 @@ export default function PayerApp({ apiBaseUrl = '' }) {
               value={senderVpa}
               onChange={(e) => setSenderVpa(e.target.value)}
               required
-              style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13px', boxSizing: 'border-box' }}
+              style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid var(--border-light)', fontSize: '13px', boxSizing: 'border-box' }}
             />
           </div>
 
           <div>
-            <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#475569', marginBottom: '4px' }}>
+            <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '4px' }}>
               Receiver VPA (Payee)
             </label>
             <input
@@ -300,14 +301,14 @@ export default function PayerApp({ apiBaseUrl = '' }) {
               value={receiverVpa}
               onChange={(e) => setReceiverVpa(e.target.value)}
               required
-              style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13px', boxSizing: 'border-box' }}
+              style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid var(--border-light)', fontSize: '13px', boxSizing: 'border-box' }}
             />
           </div>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr 1fr', gap: '12px' }}>
           <div>
-            <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#475569', marginBottom: '4px' }}>
+            <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '4px' }}>
               Amount (₹ INR)
             </label>
             <input
@@ -316,74 +317,74 @@ export default function PayerApp({ apiBaseUrl = '' }) {
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               required
-              style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '14px', fontWeight: 700, boxSizing: 'border-box' }}
+              style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid var(--border-light)', fontSize: '14px', fontWeight: 700, boxSizing: 'border-box' }}
             />
           </div>
 
           <div>
-            <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#475569', marginBottom: '4px' }}>
+            <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '4px' }}>
               Device ID
             </label>
             <input
               type="text"
               value={deviceId}
               onChange={(e) => setDeviceId(e.target.value)}
-              style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13px', boxSizing: 'border-box' }}
+              style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid var(--border-light)', fontSize: '13px', boxSizing: 'border-box' }}
             />
           </div>
 
           <div>
-            <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#475569', marginBottom: '4px' }}>
+            <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '4px' }}>
               Geo City
             </label>
             <input
               type="text"
               value={geoCity}
               onChange={(e) => setGeoCity(e.target.value)}
-              style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13px', boxSizing: 'border-box' }}
+              style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid var(--border-light)', fontSize: '13px', boxSizing: 'border-box' }}
             />
           </div>
         </div>
 
         {/* Threat Context Flags */}
-        <div style={{ padding: '12px 14px', borderRadius: '10px', backgroundColor: '#f8fafc', border: '1px dashed #cbd5e1', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        <div style={{ padding: '12px 14px', borderRadius: '10px', backgroundColor: 'var(--bg-secondary)', border: '1px dashed var(--border-light)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
               Simulated Threat Signals (Judge Controls)
             </span>
-            <span style={{ fontSize: '10px', color: '#94a3b8' }}>
+            <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>
               Track 4 & 5 Testing
             </span>
           </div>
 
-          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12.5px', color: '#334155', cursor: 'pointer' }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12.5px', color: 'var(--text-primary)', cursor: 'pointer' }}>
             <input
               type="checkbox"
               checked={isOnCall}
               onChange={(e) => setIsOnCall(e.target.checked)}
-              style={{ accentColor: '#0c7a53' }}
+              style={{ accentColor: 'var(--accent-primary)' }}
             />
-            <span>Active Phone Call Detected (Coercion Indicator • Guardian Approval / Cooling)</span>
+            <span>Active Phone Call Detected (Coercion Indicator | Guardian Approval / Cooling)</span>
           </label>
 
-          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12.5px', color: '#334155', cursor: 'pointer' }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12.5px', color: 'var(--text-primary)', cursor: 'pointer' }}>
             <input
               type="checkbox"
               checked={isScreenShare}
               onChange={(e) => setIsScreenShare(e.target.checked)}
-              style={{ accentColor: '#0c7a53' }}
+              style={{ accentColor: 'var(--accent-primary)' }}
             />
-            <span>Screen Sharing Active (RAT / Trojan Indicator • Immediate Block)</span>
+            <span>Screen Sharing Active (RAT / Trojan Indicator | Immediate Block)</span>
           </label>
 
-          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12.5px', color: '#334155', cursor: 'pointer' }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12.5px', color: 'var(--text-primary)', cursor: 'pointer' }}>
             <input
               type="checkbox"
               checked={isClipboardPaste}
               onChange={(e) => setIsClipboardPaste(e.target.checked)}
-              style={{ accentColor: '#0c7a53' }}
+              style={{ accentColor: 'var(--accent-primary)' }}
             />
-            <span>VPA Pasted from Clipboard (Clipboard Hijacking • 20s Cooling Lock)</span>
+            <span>VPA Pasted from Clipboard (Clipboard Hijacking | 20s Cooling Lock)</span>
           </label>
         </div>
 
@@ -393,38 +394,38 @@ export default function PayerApp({ apiBaseUrl = '' }) {
           style={{
             padding: '12px',
             borderRadius: '8px',
-            backgroundColor: '#0c7a53',
-            color: '#ffffff',
+            backgroundColor: 'var(--accent-primary)',
+            color: 'var(--text-inverse)',
             border: 'none',
             fontSize: '14px',
             fontWeight: 700,
             cursor: loading ? 'not-allowed' : 'pointer',
-            boxShadow: '0 2px 8px rgba(12, 122, 83, 0.25)',
-            transition: 'background-color 0.15s',
+            boxShadow: '0 2px 8px var(--btn-solid-shadow)',
+            transition: 'background-color 0.15s ease',
           }}
         >
-          {loading ? 'Computing HMAC & Dispatching...' : `Pay ₹${parseFloat(amount || 0).toLocaleString('en-IN')}`}
+          {loading ? 'Computing HMAC & Dispatching…' : `Pay ₹${parseFloat(amount || 0).toLocaleString('en-IN')}`}
         </button>
       </form>
 
       {/* Transaction & Signature Telemetry Box */}
       {currentTxn && (
-        <div style={{ marginTop: '20px', padding: '14px', borderRadius: '10px', backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', fontSize: '12.5px' }}>
+        <div style={{ marginTop: '20px', padding: '14px', borderRadius: '10px', backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-light)', fontSize: '12.5px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-            <span style={{ fontWeight: 700, color: '#334155' }}>TRANSACTION STATE</span>
+            <span style={{ fontWeight: 700, color: 'var(--text-primary)' }}>TRANSACTION STATE</span>
             <span style={{
               padding: '3px 10px',
               borderRadius: '9999px',
               fontSize: '11px',
               fontWeight: 700,
-              backgroundColor: txnState === 'SETTLED' || txnState === 'APPROVED' ? '#dcfce7' : txnState === 'BLOCKED' || txnState === 'REJECTED' ? '#fee2e2' : '#fef9c3',
-              color: txnState === 'SETTLED' || txnState === 'APPROVED' ? '#15803d' : txnState === 'BLOCKED' || txnState === 'REJECTED' ? '#b91c1c' : '#a16207',
+              backgroundColor: txnState === 'SETTLED' || txnState === 'APPROVED' ? 'var(--accent-mint-light)' : txnState === 'BLOCKED' || txnState === 'REJECTED' ? 'var(--color-danger-bg)' : 'var(--color-warning-soft)',
+              color: txnState === 'SETTLED' || txnState === 'APPROVED' ? 'var(--color-success)' : txnState === 'BLOCKED' || txnState === 'REJECTED' ? 'var(--color-danger)' : 'var(--color-warning)',
             }}>
               ● {txnState}
             </span>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', color: '#475569' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', color: 'var(--text-secondary)' }}>
             <div><strong>Txn ID:</strong> <span style={{ fontFamily: 'monospace' }}>{currentTxn.txn_id || currentTxn.id}</span></div>
             <div><strong>Payer:</strong> {currentTxn.sender_vpa || currentTxn.payer} ➔ <strong>Payee:</strong> {currentTxn.receiver_vpa || currentTxn.payee}</div>
             <div><strong>Amount:</strong> ₹{parseFloat(currentTxn.amount || 0).toLocaleString('en-IN')}</div>
@@ -432,7 +433,7 @@ export default function PayerApp({ apiBaseUrl = '' }) {
               <div><strong>Risk Score:</strong> {Math.round(currentTxn.risk_score * (currentTxn.risk_score <= 1 ? 100 : 1))}/100</div>
             )}
             {lastSignature && (
-              <div style={{ marginTop: '4px', wordBreak: 'break-all', fontSize: '11px', color: '#64748b' }}>
+              <div style={{ marginTop: '4px', wordBreak: 'break-all', fontSize: '11px', color: 'var(--text-secondary)' }}>
                 <strong>X-Signature:</strong> <span style={{ fontFamily: 'monospace' }}>{lastSignature}</span>
               </div>
             )}
@@ -446,29 +447,29 @@ export default function PayerApp({ apiBaseUrl = '' }) {
           marginTop: '16px',
           padding: '16px',
           borderRadius: '12px',
-          backgroundColor: '#eff6ff',
-          border: '1.5px solid #93c5fd',
+          backgroundColor: 'var(--color-info-bg)',
+          border: '1.5px solid var(--border-light)',
           display: 'flex',
           flexDirection: 'column',
           gap: '10px',
         }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: '11px', fontWeight: 800, color: '#1d4ed8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-              🛡️ Track 3: PFM Cooling Lock Engaged
+            <span style={{ fontSize: '11px', fontWeight: 800, color: 'var(--accent-primary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><ShieldCheck size={14} /><span>Track 3: PFM Cooling Lock Engaged</span></span>
             </span>
             <span style={{
               fontSize: '12px',
               fontWeight: 800,
-              color: '#1e40af',
-              backgroundColor: '#dbeafe',
+              color: 'var(--accent-primary)',
+              backgroundColor: 'var(--color-info-bg)',
               padding: '2px 8px',
               borderRadius: '6px',
             }}>
-              ⏱️ {coolingSecondsLeft > 0 ? `${coolingSecondsLeft}s remaining` : 'Timer Expired'}
+              <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Clock size={12} /><span>{coolingSecondsLeft > 0 ? `${coolingSecondsLeft}s remaining` : 'Timer Expired'}</span></span>
             </span>
           </div>
 
-          <p style={{ margin: 0, fontSize: '12.5px', color: '#1e3a8a', lineHeight: '1.4' }}>
+          <p style={{ margin: 0, fontSize: '12.5px', color: 'var(--text-primary)', lineHeight: '1.4' }}>
             <strong>Payer Remorse Window Active:</strong> Funds are held safely in atomic ledger escrow. If you did not intend this transfer, cancel now to reject and retain your balance.
           </p>
 
@@ -480,15 +481,16 @@ export default function PayerApp({ apiBaseUrl = '' }) {
                 flex: 1,
                 padding: '9px 12px',
                 borderRadius: '8px',
-                backgroundColor: '#dc2626',
-                color: '#ffffff',
+                backgroundColor: 'var(--color-danger)',
+                color: 'var(--text-inverse)',
                 border: 'none',
                 fontWeight: 700,
                 fontSize: '12.5px',
                 cursor: loading ? 'not-allowed' : 'pointer',
+                whiteSpace: 'nowrap',
               }}
             >
-              🛑 Cancel Payment (Remorse Protection)
+              <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}><Ban size={14} /><span>Cancel (Remorse)</span></span>
             </button>
 
             <button
@@ -498,15 +500,16 @@ export default function PayerApp({ apiBaseUrl = '' }) {
                 flex: 1,
                 padding: '9px 12px',
                 borderRadius: '8px',
-                backgroundColor: coolingSecondsLeft > 0 ? '#cbd5e1' : '#16a34a',
-                color: '#ffffff',
+                backgroundColor: coolingSecondsLeft > 0 ? 'var(--border-light)' : 'var(--color-success)',
+                color: 'var(--text-inverse)',
                 border: 'none',
                 fontWeight: 700,
                 fontSize: '12.5px',
                 cursor: (loading || coolingSecondsLeft > 0) ? 'not-allowed' : 'pointer',
+                whiteSpace: 'nowrap',
               }}
             >
-              {coolingSecondsLeft > 0 ? `Wait ${coolingSecondsLeft}s to Settle` : '✓ Settle Payment'}
+              {coolingSecondsLeft > 0 ? `Wait ${coolingSecondsLeft}s to Settle` : <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}><CheckCircle2 size={14} /><span>Settle Payment</span></span>}
             </button>
           </div>
 

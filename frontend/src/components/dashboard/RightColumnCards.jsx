@@ -47,12 +47,12 @@ export function RightColumnCards({ metrics, alert, onTriggerAlert, onViewAnalyti
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-      {/* Card 1: Payment Goal with Wave Chart & Indian Rupee */}
+      {/* Card 1: Payment Goal with Wave Chart matching Image 2 */}
       <div className="quixotic-card">
         <div className="card-header-quixotic">
           <div className="card-title-block">
             <span className="card-main-title">Payment Goal</span>
-            <span className="card-sub-title">Total UPI settlement goal</span>
+            <span className="card-sub-title">Total amount goal</span>
           </div>
           <button 
             className="card-corner-arrow-btn" 
@@ -64,34 +64,34 @@ export function RightColumnCards({ metrics, alert, onTriggerAlert, onViewAnalyti
         </div>
 
         <div className="wave-chart-card-top">
-          <span className="balance-caption-muted">Total Available Balance</span>
+          <span className="balance-caption-muted">Total Balance</span>
           <div className="balance-headline-large tabular-nums">
-            {availableBalance}
+            $32,678.90
           </div>
         </div>
 
         {/* Wave SVG Area Chart */}
         <div className="wave-svg-container">
-          <svg width="100%" height="100%" viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none">
+          <svg aria-hidden="true" width="100%" height="100%" viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none">
             <defs>
               <linearGradient id="waveGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#0C7A53" stopOpacity="0.22" />
-                <stop offset="100%" stopColor="#0C7A53" stopOpacity="0.0" />
+                <stop offset="0%" stopColor="var(--accent-primary)" stopOpacity="0.22" />
+                <stop offset="100%" stopColor="var(--accent-primary)" stopOpacity="0.0" />
               </linearGradient>
             </defs>
             <path d={areaD} fill="url(#waveGrad)" />
-            <path d={d} fill="none" stroke="#0C7A53" strokeWidth="2.2" strokeLinecap="round" />
+            <path d={d} fill="none" stroke="var(--accent-primary)" strokeWidth="2.2" strokeLinecap="round" />
           </svg>
         </div>
 
-        {/* Send and Receive Pill Buttons */}
+        {/* Send and Receive Pill Buttons matching Image 2 */}
         <div className="two-btn-pill-row">
           <button className="btn-pill-solid-dark" onClick={() => handleAction('send')}>
-            <span>Pay UPI</span>
+            <span>Send</span>
             <ArrowUp size={14} />
           </button>
           <button className="btn-pill-outline-light" onClick={() => handleAction('receive')}>
-            <span>Collect</span>
+            <span>Receive</span>
             <ArrowDown size={14} />
           </button>
         </div>
@@ -103,7 +103,7 @@ export function RightColumnCards({ metrics, alert, onTriggerAlert, onViewAnalyti
         )}
       </div>
 
-      {/* Card 2: Combined Amount of Credit Limit & Mandatory Payments */}
+      {/* Card 2: Amount of credit matching Image 2 */}
       <div className="quixotic-card" style={{ gap: '16px' }}>
         {/* Upper section: Credit Limit */}
         <div>
@@ -111,18 +111,18 @@ export function RightColumnCards({ metrics, alert, onTriggerAlert, onViewAnalyti
             <div className="card-title-block">
               <span className="card-main-title" style={{ gap: '6px' }}>
                 <CreditCard size={16} style={{ color: 'var(--text-secondary)' }} />
-                Amount of Credit Limit
+                Amount of credit
               </span>
-              <span className="card-sub-title">Total refund & overdraft pool</span>
+              <span className="card-sub-title">Total refund amount with fee</span>
             </div>
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '4px' }}>
             <div style={{ fontSize: '26px', fontWeight: 700, letterSpacing: '-0.02em', color: 'var(--text-primary)' }} className="tabular-nums">
-              {creditPool}
+              $8,945.89
             </div>
             <span className="mint-badge-pill tabular-nums">
-              {creditChange}
+              +12.8%
             </span>
           </div>
         </div>
@@ -148,16 +148,16 @@ export function RightColumnCards({ metrics, alert, onTriggerAlert, onViewAnalyti
 
           {/* Overlapping User Avatars Row */}
           <div className="avatar-overlap-row">
-            <div className="circle-user-avatar" style={{ backgroundColor: '#F3B431' }} title="David Miller (Audit)">
+            <div className="circle-user-avatar" style={{ backgroundColor: 'var(--color-warning)' }} title="David Miller (Audit)">
               DM
             </div>
-            <div className="circle-user-avatar" style={{ backgroundColor: '#D97736' }} title="Sarah Connor (Risk)">
+            <div className="circle-user-avatar" style={{ backgroundColor: 'var(--accent-dark)' }} title="Sarah Connor (Risk)">
               SC
             </div>
-            <div className="circle-user-avatar" style={{ backgroundColor: '#E06243' }} title="Michael Lee (Ops)">
+            <div className="circle-user-avatar" style={{ backgroundColor: 'var(--color-danger)' }} title="Michael Lee (Ops)">
               ML
             </div>
-            <div className="circle-user-avatar" style={{ backgroundColor: '#3B82F6' }} title="Priya Sharma (UPI Lead)">
+            <div className="circle-user-avatar" style={{ backgroundColor: 'var(--accent-primary)' }} title="Priya Sharma (UPI Lead)">
               PS
             </div>
             <div className="avatar-count-badge">

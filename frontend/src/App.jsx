@@ -27,6 +27,24 @@ import { createTransactionStream } from './api/sse';
 
 export default function App() {
   const [activeView, setActiveView] = useState('dashboard');
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem('shieldpay_theme') || 'light';
+  });
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    if (theme === 'dark') {
+      document.body.classList.add('dark-mode');
+    } else {
+      document.body.classList.remove('dark-mode');
+    }
+    localStorage.setItem('shieldpay_theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
+  };
+
   const [dateRange, setDateRange] = useState({
     id: 'quarter',
     label: '29 Jun, 2025 - 29 August, 2025'
@@ -222,7 +240,8 @@ export default function App() {
         activeView={activeView}
         onSelectView={setActiveView}
         unreadAlertCount={alerts.length}
-        connectionStatus={connectionStatus}
+        theme={theme}
+        onToggleTheme={toggleTheme}
         />
 
       {/* Global Security Core Error Banner if live connection fails */}
@@ -288,10 +307,10 @@ export default function App() {
           right: '24px',
           padding: '12px 18px',
           borderRadius: '30px',
-          backgroundColor: '#0F172A',
-          color: '#38BDF8',
-          border: '1.5px solid rgba(56, 189, 248, 0.4)',
-          boxShadow: '0 8px 24px rgba(15, 23, 42, 0.25)',
+          backgroundColor: 'var(--bg-panel-dark)',
+          color: 'var(--accent-blue)',
+          border: '1px solid var(--accent-blue)',
+          boxShadow: 'var(--shadow-floating)',
           display: 'flex',
           alignItems: 'center',
           gap: '8px',
@@ -304,13 +323,13 @@ export default function App() {
         onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
         onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
         >
-        <Bot size={18} style={{ color: '#38BDF8' }} />
-        <span style={{ color: '#F8FAFC' }}>AI Security Copilot</span>
+        <Bot size={18} style={{ color: 'var(--accent-blue)' }} />
+        <span style={{ color: 'var(--text-inverse)' }}>AI Security Copilot</span>
         <span style={{
           width: '8px',
           height: '8px',
           borderRadius: '50%',
-          backgroundColor: '#10B981',
+          backgroundColor: 'var(--accent-green-bright)',
           display: 'inline-block'
         }} />
       </button>

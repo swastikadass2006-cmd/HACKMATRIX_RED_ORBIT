@@ -9,7 +9,7 @@ export function LoadingSkeleton({ rows = 5 }) {
           style={{
             height: '28px',
             borderRadius: '4px',
-            backgroundColor: '#F1F5F9'
+            backgroundColor: 'var(--bg-secondary)'
           }}
         />
       ))}

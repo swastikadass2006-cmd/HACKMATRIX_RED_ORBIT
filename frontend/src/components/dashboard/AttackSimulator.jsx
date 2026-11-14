@@ -62,8 +62,8 @@ export function AttackSimulator({ onSimulationResult }) {
 
       {isRunning && (
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', fontSize: '11.5px', color: 'var(--text-muted)', padding: '4px' }}>
-          <Loader2 size={13} className="animate-spin" />
-          <span>Injecting UPI payload to risk engine...</span>
+          <Loader2 size={13} className="animate-spin motion-reduce:animate-none" />
+          <span>Injecting UPI payload to risk engine…</span>
         </div>
       )}
 

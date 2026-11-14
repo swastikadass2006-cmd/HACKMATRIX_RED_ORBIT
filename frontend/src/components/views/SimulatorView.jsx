@@ -76,7 +76,7 @@ export function SimulatorView({ onBackToDashboard, onSimulationDone }) {
                     backgroundColor: isSelected ? 'var(--accent-mint-light)' : 'var(--bg-secondary)',
                     border: `1.5px solid ${isSelected ? 'var(--accent-primary)' : 'var(--border-light)'}`,
                     cursor: 'pointer',
-                    transition: 'all 0.15s ease'
+                    transition: 'background-color 0.15s ease, border-color 0.15s ease'
                   }}
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -108,7 +108,7 @@ export function SimulatorView({ onBackToDashboard, onSimulationDone }) {
           {running ? (
             <div style={{ padding: '40px 20px', textAlign: 'center', color: 'var(--text-secondary)' }}>
               <Loader2 size={24} className="animate-spin" style={{ margin: '0 auto 12px', color: 'var(--accent-primary)' }} />
-              <p style={{ fontWeight: 600 }}>Injecting simulated UPI payload to FastAPI risk engine...</p>
+              <p style={{ fontWeight: 600 }}>Injecting simulated UPI payload to FastAPI risk engine…</p>
             </div>
           ) : result ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginTop: '10px' }}>

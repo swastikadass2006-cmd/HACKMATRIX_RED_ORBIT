@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { ArrowLeft, Server, Activity, ShieldCheck, Check } from 'lucide-react';
 import { checkHealth } from '../../api/client';
 
+export function SettingsView({ onBackToDashboard }) {
+  const [testResult, setTestResult] = useState(null);
+  const [testing, setTesting] = useState(false);
   const currentApiBase = import.meta.env.VITE_API_BASE_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:8000');
 
   const handleTestBackend = async () => {
